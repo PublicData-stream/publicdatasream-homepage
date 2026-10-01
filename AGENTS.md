@@ -1,8 +1,8 @@
 # Agent orientation
 
 This repository builds the publicdata.stream server directory with Astro. It is
-purely static: deploy `dist/` to Cloudflare Pages. Real server entries and legal
-policy text are intentionally deferred; do not invent them.
+purely static: serve `dist/` through Cloudflare Workers Static Assets. Real server
+entries and legal policy text are intentionally deferred; do not invent them.
 
 ## Authoritative guidance
 
@@ -27,6 +27,10 @@ This file summarizes orientation rather than duplicating those rules.
   this boundary.
 - Keep production CSP compatible with local external CSS and no browser scripts.
   `public/_headers` must reach `dist/` unchanged.
+- Keep Wrangler configured for static assets only, with no Worker entrypoint,
+  Functions, resource bindings, or provisioning. The configuration guard runs
+  during builds and before deployment. Use the Workers Free plan for zero fees;
+  repository configuration cannot control account subscriptions.
 - Keep templates and synthetic fixtures outside production collections. Tests
   use disposable directories and must not call actual MCP/API servers.
 - Run applicable checks and report actual results and remaining limitations.

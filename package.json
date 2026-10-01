@@ -14,9 +14,11 @@
     "lint": "oxlint --deny-warnings",
     "tsgo": "astro sync && node node_modules/typescript-native/bin/tsc --noEmit -p tsconfig.json",
     "check:astro": "astro check",
+    "check:cloudflare": "node scripts/check-cloudflare.mjs",
     "test": "node --test tests/*.test.ts",
-    "build": "pnpm run lint && pnpm run tsgo && pnpm run check:astro && astro build && node scripts/check-dist.mjs",
-    "verify": "pnpm run test && pnpm run build"
+    "build": "pnpm run check:cloudflare && pnpm run lint && pnpm run tsgo && pnpm run check:astro && astro build && node scripts/check-dist.mjs",
+    "verify": "pnpm run test && pnpm run build",
+    "deploy": "pnpm run check:cloudflare && node scripts/check-dist.mjs && wrangler deploy"
   },
   "devDependencies": {
     "@astrojs/check": "0.9.10",
@@ -29,6 +31,7 @@
     "typescript": "6.0.3",
     "typescript-native": "npm:typescript@7.0.2",
     "unified": "11.0.5",
-    "vfile": "6.0.3"
+    "vfile": "6.0.3",
+    "wrangler": "4.146.0"
   }
 }
