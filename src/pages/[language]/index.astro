@@ -1,0 +1,8 @@
+---
+import DirectoryPage from '../../components/DirectoryPage.astro'
+import { DirectoryRoutes } from '../../lib/routes.ts'
+export const getStaticPaths = DirectoryRoutes
+interface Props { language: string }
+const { language: Language } = Astro.props
+---
+<DirectoryPage language={Language} />

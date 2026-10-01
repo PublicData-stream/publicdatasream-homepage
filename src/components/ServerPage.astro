@@ -1,0 +1,55 @@
+---
+import { render, type CollectionEntry } from 'astro:content'
+import Configuration from './Configuration.astro'
+import ExternalLink from './ExternalLink.astro'
+import SiteLayout from '../layouts/SiteLayout.astro'
+import { GetCatalog } from '../lib/catalog.ts'
+import { DirectoryPath, GetLanguage, PolicyPath, ResolvePolicy, ServerPath } from '../lib/localization.ts'
+
+interface Props { server: CollectionEntry<'servers'> }
+const { server: Server } = Astro.props
+const { data: Data } = Server
+const { Messages } = GetLanguage(Data.language)
+const { Servers, Policies } = await GetCatalog()
+const Alternates = Servers.filter((Entry) => Entry.data.slug === Data.slug)
+  .map((Entry) => ({ Code: Entry.data.language, Path: ServerPath(Entry.data.slug, Entry.data.language) }))
+const Links = (['terms', 'privacy'] as const).flatMap((Kind) => {
+  const Reference = Data[Kind]
+  if (!Reference) return []
+  const Policy = ResolvePolicy(Policies, Reference, Data.language)
+  if (!Policy) throw new Error('Missing referenced policy.')
+  return [{ Policy, Label: Kind === 'terms' ? Messages.Terms : Messages.Privacy }]
+})
+const { Content } = await render(Server)
+---
+<SiteLayout title={Data.name} description={Data.description} language={Data.language} alternates={Alternates}>
+  <article class="document">
+    <a class="back-link" href={`${DirectoryPath(Data.language)}#servers`}>← {Messages.Directory}</a>
+    <header class="document-header">
+      <div class="badges">{Data.capabilities.map((Capability) => <span class="badge">{Capability.toUpperCase()}</span>)}</div>
+      <h1>{Data.name}</h1>
+      <p class="lede">{Data.description}</p>
+    </header>
+    <section class="prose" aria-labelledby="installation-title">
+      <h2 id="installation-title">{Messages.Installation}</h2>
+      <Content />
+    </section>
+    <section class="client-examples" aria-labelledby="clients-title">
+      <h2 id="clients-title">{Messages.Clients}</h2>
+      <Configuration title="Codex" example={Data.codex} language={Data.language} />
+      <Configuration title={Data.claude.client} example={Data.claude} language={Data.language} />
+    </section>
+    {Data.chatgptPlugin && (
+      <section class="prose" aria-labelledby="plugin-title">
+        <h2 id="plugin-title">{Messages.Plugin}</h2>
+        <p class="preserve-lines">{Data.chatgptPlugin.instructions}</p>
+        <ExternalLink href={Data.chatgptPlugin.definitionUrl}>{Messages.PluginDefinition} ↗</ExternalLink>
+      </section>
+    )}
+    {Links.length > 0 && (
+      <nav class="policy-links" aria-label={Messages.ServerPolicies(Data.name)}>
+        {Links.map(({ Policy, Label }) => <a href={PolicyPath(Policy)} hreflang={Policy.data.language}>{Label}{Policy.data.language !== Data.language && ` — ${Messages.EnglishFallback}`}</a>)}
+      </nav>
+    )}
+  </article>
+</SiteLayout>

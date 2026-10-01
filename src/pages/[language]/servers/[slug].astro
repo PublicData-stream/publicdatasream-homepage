@@ -1,10 +1,10 @@
 ---
 import type { CollectionEntry } from 'astro:content'
 import type { GetStaticPaths } from 'astro'
-import ServerPage from '../../components/ServerPage.astro'
-import { ServerRoutes } from '../../lib/routes.ts'
+import ServerPage from '../../../components/ServerPage.astro'
+import { ServerRoutes } from '../../../lib/routes.ts'
 
-export const getStaticPaths = (() => ServerRoutes(false)) satisfies GetStaticPaths
+export const getStaticPaths = (() => ServerRoutes(true)) satisfies GetStaticPaths
 
 interface Props { server: CollectionEntry<'servers'> }
 const { server: Entry } = Astro.props

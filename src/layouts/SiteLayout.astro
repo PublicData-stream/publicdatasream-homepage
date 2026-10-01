@@ -1,49 +1,64 @@
 ---
 import '../styles/global.css'
 import { MarkdownPath } from '../lib/discovery.ts'
+import { DefaultLanguage } from '../lib/languages.ts'
+import { DirectoryPath, GetLanguage } from '../lib/localization.ts'
 
 interface Props {
   title: string;
   description?: string;
   noindex?: boolean;
+  language?: string;
+  alternates?: { Code: string; Path: string }[];
 }
 const {
   title: Title,
-  description: Description = 'Discover publicdata.stream MCP and API servers, installation instructions, and client configuration.',
+  description: Description,
   noindex: Noindex = false,
+  language: Language = DefaultLanguage,
+  alternates: Alternates = [{ Code: Language, Path: Astro.url.pathname }],
 } = Astro.props
 const Canonical = new URL(Astro.url.pathname, Astro.site)
+const { Messages, Direction } = GetLanguage(Language)
+const English = Alternates.find((Alternate) => Alternate.Code === DefaultLanguage)
 ---
 <!doctype html>
-<html lang="en">
+<html lang={Language} dir={Direction}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{Title} · publicdata.stream</title>
-    <meta name="description" content={Description} />
+    <meta name="description" content={Description ?? Messages.Summary} />
     <link rel="canonical" href={Canonical} />
     {!Noindex && <link rel="describedby" href="/llms.txt" />}
     {!Noindex && <link rel="alternate" type="text/markdown" href={MarkdownPath(Astro.url.pathname)} />}
+    {!Noindex && Alternates.map((Alternate) => <link rel="alternate" hreflang={Alternate.Code} href={new URL(Alternate.Path, Astro.site)} />)}
+    {!Noindex && English && <link rel="alternate" hreflang="x-default" href={new URL(English.Path, Astro.site)} />}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource-variable/google-sans-flex@5.3.1/index.min.css" />
     {Noindex && <meta name="robots" content="noindex" />}
   </head>
   <body>
-    <a class="skip-link" href="#main">Skip to content</a>
+    <a class="skip-link" href="#main">{Messages.Skip}</a>
     <div class="site-shell">
       <header class="site-header">
-        <a class="wordmark" href="/" aria-label="publicdata.stream home">
+        <a class="wordmark" href={DirectoryPath(Language)} aria-label={Messages.Home} dir="ltr">
           <span class="brand-mark" aria-hidden="true">p<span>·</span></span>
           publicdata<span class="wordmark-suffix">.stream</span>
         </a>
-        <nav aria-label="Main navigation">
-          <a href="/#servers">Servers</a>
-          <a href="/#about">About</a>
+        <nav aria-label={Messages.Navigation}>
+          <a href={`${DirectoryPath(Language)}#servers`}>{Messages.Servers}</a>
+          <a href={`${DirectoryPath(Language)}#about`}>{Messages.About}</a>
         </nav>
       </header>
+      {!Noindex && Alternates.length > 1 && (
+        <nav class="language-nav" aria-label={Messages.Languages}>
+          {Alternates.map((Alternate) => <a href={Alternate.Path} lang={Alternate.Code} hreflang={Alternate.Code} dir={GetLanguage(Alternate.Code).Direction} aria-current={Alternate.Code === Language ? 'page' : undefined}>{GetLanguage(Alternate.Code).NativeName}</a>)}
+        </nav>
+      )}
       <main id="main" tabindex="-1"><slot /></main>
       <footer class="site-footer">
-        <a class="footer-brand" href="/">publicdata.stream</a>
-        <span>Public data, connected.</span>
+        <a class="footer-brand" href={DirectoryPath(Language)} dir="ltr">publicdata.stream</a>
+        <span>{Messages.Footer}</span>
       </footer>
     </div>
   </body>

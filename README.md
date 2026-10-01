@@ -38,9 +38,9 @@ published runtime dependencies.
 5. Run `pnpm run verify` and preview the site before submitting the change.
 
 `src/content.config.ts` is the equivalent of a `src/servers.ts` data module. It
-loads one Markdown file per server. Templates and synthetic test fixtures stay
-outside production collections. The homepage sorts entries by name; each entry
-generates `/servers/<slug>/`.
+loads one Markdown file per server and language. Templates and synthetic test
+fixtures stay outside production collections. The homepage sorts entries by name;
+each English entry generates `/servers/<slug>/`.
 
 | Frontmatter field | Meaning |
 | --- | --- |
@@ -160,6 +160,28 @@ counterpart; policy translations must also match its server and kind and have a
 server document in their language. Slugs and policy routes are unique within
 each language. Policy references resolve in the server document's language first,
 then English, and retain the existing server/kind validation.
+
+To publish another language, add its complete dictionary and definition to
+`src/i18n/locales.ts`, then add any translated documents in the language folders.
+Dictionary entries include UI text, descriptions, accessibility labels, and
+formatting functions for counts and parameterized messages. Missing keys fail
+type checks and builds; UI dictionaries do not silently fall back to English.
+
+English URLs remain `/` and `/servers/<slug>/`. Other published languages use
+`/<language>/` and `/<language>/servers/<slug>/`, including policy pages and
+`index.md` counterparts. A localized directory lists each English server once,
+preferring translated metadata. Untranslated entries link to English with an
+explicit label; translated server pages similarly label English policy links.
+No duplicate fallback pages or browser language detection are generated. Authored
+root-relative Markdown links remain literal: contributors must point them to the
+intended translated or English document.
+
+Language navigation uses ordinary links: directories show all published
+languages, while document pages show only existing equivalent translations.
+Each page declares its language and text direction, canonical URL, and reciprocal
+`hreflang` equivalents, with English as `x-default`. The global 404 stays English.
+The sitemap covers all published HTML pages; one English `/llms.txt` groups all
+published Markdown documents by language, without duplicate fallback listings.
 
 ## Checks and static builds
 

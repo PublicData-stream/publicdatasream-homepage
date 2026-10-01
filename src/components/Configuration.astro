@@ -1,16 +1,19 @@
 ---
+import { GetLanguage } from '../lib/localization.ts'
 interface Props {
   title: string;
   example: { format: string; config: string } | { unsupported: string };
+  language?: string;
 }
-const { title: Title, example: Example } = Astro.props
+const { title: Title, example: Example, language: Language } = Astro.props
+const { Messages } = GetLanguage(Language)
 ---
-<section class="configuration" aria-label={`${Title} configuration`}>
+<section class="configuration" aria-label={Messages.Configuration(Title)}>
   <h3>{Title}</h3>
   {'config' in Example ? (
     <>
       <div class="code-label">{Example.format.toUpperCase()}</div>
-      <pre tabindex="0" aria-label={`${Title} configuration example`}><code>{Example.config}</code></pre>
+      <pre dir="ltr" tabindex="0" aria-label={Messages.ConfigurationExample(Title)}><code>{Example.config}</code></pre>
     </>
   ) : <p>{Example.unsupported}</p>}
 </section>

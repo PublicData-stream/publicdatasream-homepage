@@ -1,0 +1,22 @@
+---
+import { render, type CollectionEntry } from 'astro:content'
+import SiteLayout from '../layouts/SiteLayout.astro'
+import { GetCatalog } from '../lib/catalog.ts'
+import { GetLanguage, PolicyPath, ServerPath } from '../lib/localization.ts'
+
+interface Props { policy: CollectionEntry<'policies'> }
+const { policy: Policy } = Astro.props
+const { data: Data } = Policy
+const { Messages } = GetLanguage(Data.language)
+const { Policies } = await GetCatalog()
+const Alternates = Policies.filter((Entry) => Entry.data.slug === Data.slug)
+  .map((Entry) => ({ Code: Entry.data.language, Path: PolicyPath(Entry) }))
+const { Content } = await render(Policy)
+---
+<SiteLayout title={Data.title} language={Data.language} alternates={Alternates}>
+  <article class="document">
+    <a class="back-link" href={ServerPath(Data.server, Data.language)}>← {Messages.ServerDocumentation}</a>
+    <header class="document-header"><h1>{Data.title}</h1></header>
+    <div class="prose"><Content /></div>
+  </article>
+</SiteLayout>

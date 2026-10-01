@@ -1,0 +1,52 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro'
+import { GetCatalog } from '../lib/catalog.ts'
+import { DefaultLanguage } from '../lib/languages.ts'
+import { DirectoryPath, GetLanguage, GetPublishedLanguages, LocalizedServers, ServerPath } from '../lib/localization.ts'
+
+interface Props { language?: string }
+const { language: Language = DefaultLanguage } = Astro.props
+const { Messages } = GetLanguage(Language)
+const Catalog = await GetCatalog()
+const Servers = LocalizedServers(Catalog.Servers, Language)
+const Alternates = GetPublishedLanguages().map((Entry) => ({ Code: Entry.Code, Path: DirectoryPath(Entry.Code) }))
+---
+<SiteLayout title={Messages.DirectoryTitle} language={Language} alternates={Alternates}>
+  <section class="hero" aria-labelledby="hero-title">
+    <p class="eyebrow"><span class="status-dot" aria-hidden="true"></span> {Messages.Eyebrow}</p>
+    <h1 id="hero-title">{Messages.HeroStart}<br /><span>{Messages.HeroEnd}</span></h1>
+    <p class="hero-description">{Messages.HeroDescription}<br class="desktop-break" /> {Messages.HeroDetails}</p>
+    <a class="button-link" href="#servers">{Messages.Explore} <span aria-hidden="true">↘</span></a>
+    <div class="hero-rule" aria-hidden="true"><span>{Messages.Motto}</span><span>{Messages.DirectoryNumber}</span></div>
+  </section>
+
+  <section id="servers" class="directory" aria-labelledby="servers-title">
+    <div class="section-heading">
+      <div><p class="eyebrow">{Messages.Find}</p><h2 id="servers-title">{Messages.Directory}</h2></div>
+      <span class="count-label">{Messages.Count(Servers.length)}</span>
+    </div>
+    {Servers.length === 0 ? (
+      <div class="empty-state">
+        <span class="empty-mark" aria-hidden="true">[ + ]</span>
+        <div><h3>{Messages.EmptyTitle}</h3><p>{Messages.EmptyDetails}</p></div>
+      </div>
+    ) : (
+      <ul class="server-grid">
+        {Servers.map(({ data: Data }) => (
+          <li class="server-card">
+            <div class="badges">{Data.capabilities.map((Capability) => <span class="badge">{Capability.toUpperCase()}</span>)}</div>
+            <h3 lang={Data.language} dir={GetLanguage(Data.language).Direction}><a href={ServerPath(Data.slug, Data.language)}>{Data.name}<span aria-hidden="true"> ↗</span></a></h3>
+            <p lang={Data.language} dir={GetLanguage(Data.language).Direction}>{Data.description}</p>
+            <span class="card-caption">{Messages.CardCaption}</span>
+            {Data.language !== Language && <p class="fallback-label">{Messages.EnglishFallback}</p>}
+          </li>
+        ))}
+      </ul>
+    )}
+  </section>
+
+  <section id="about" class="about" aria-labelledby="about-title">
+    <p class="eyebrow">{Messages.AboutEyebrow}</p>
+    <div><h2 id="about-title">{Messages.AboutStart}<br />{Messages.AboutEnd}</h2><p>{Messages.AboutDescription}</p></div>
+  </section>
+</SiteLayout>

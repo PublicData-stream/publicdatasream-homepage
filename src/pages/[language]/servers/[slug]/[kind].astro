@@ -1,10 +1,10 @@
 ---
 import type { CollectionEntry } from 'astro:content'
 import type { GetStaticPaths } from 'astro'
-import PolicyPage from '../../../components/PolicyPage.astro'
-import { PolicyRoutes } from '../../../lib/routes.ts'
+import PolicyPage from '../../../../components/PolicyPage.astro'
+import { PolicyRoutes } from '../../../../lib/routes.ts'
 
-export const getStaticPaths = (() => PolicyRoutes(false)) satisfies GetStaticPaths
+export const getStaticPaths = (() => PolicyRoutes(true)) satisfies GetStaticPaths
 
 interface Props { policy: CollectionEntry<'policies'> }
 const { policy: Entry } = Astro.props

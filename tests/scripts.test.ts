@@ -12,7 +12,7 @@ const TsxCli = fileURLToPath(import.meta.resolve('tsx/cli'))
 test('tsx imports validators without running them and executes the configuration CLI', async () => {
   const Fixture = await mkdtemp(join(tmpdir(), 'publicdata-scripts-'))
   try {
-    for (const Path of ['scripts', 'src/lib', 'package.json', 'wrangler.jsonc']) {
+    for (const Path of ['scripts', 'src/lib', 'src/i18n', 'package.json', 'wrangler.jsonc']) {
       await cp(join(Root, Path), join(Fixture, Path), { recursive: true })
     }
     await symlink(join(Root, 'node_modules'), join(Fixture, 'node_modules'), 'dir')

@@ -1,11 +1,13 @@
 ---
 import SiteLayout from '../layouts/SiteLayout.astro'
+import { GetLanguage } from '../lib/localization.ts'
+const { Messages } = GetLanguage()
 ---
-<SiteLayout title="Page not found" noindex>
+<SiteLayout title={Messages.NotFoundTitle} noindex>
   <section class="document">
-    <p class="eyebrow">404 / Page not found</p>
-    <h1>This connection leads nowhere.</h1>
-    <p class="lede">The page may have moved, or this address may be incomplete.</p>
-    <a class="button-link" href="/">Return to the directory <span aria-hidden="true">→</span></a>
+    <p class="eyebrow">404 / {Messages.NotFoundTitle}</p>
+    <h1>{Messages.NotFoundHeading}</h1>
+    <p class="lede">{Messages.NotFoundDetails}</p>
+    <a class="button-link" href="/">{Messages.Return} <span aria-hidden="true">→</span></a>
   </section>
 </SiteLayout>
