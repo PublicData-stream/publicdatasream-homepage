@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import { markdownPath } from '../lib/discovery.ts';
 
 interface Props {
   title: string;
@@ -21,6 +22,8 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <title>{title} · publicdata.stream</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
+    {!noindex && <link rel="describedby" href="/llms.txt" />}
+    {!noindex && <link rel="alternate" type="text/markdown" href={markdownPath(Astro.url.pathname)} />}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource-variable/google-sans-flex@5.3.1/index.min.css" />
     {noindex && <meta name="robots" content="noindex" />}
   </head>

@@ -139,6 +139,38 @@ empty content fail validation. Omitted references render no policy links.
 
 ## Checks and static builds
 
+### Crawler and agent discovery
+
+The static build publishes these files at the canonical origin,
+`https://publicdata.stream`:
+
+| URL | Purpose |
+| --- | --- |
+| `/llms.txt` | Concise site overview and links to Markdown documentation, following the [llms.txt proposal](https://llmstxt.org/) |
+| `/robots.txt` | Allows all crawlers and advertises the canonical sitemap |
+| `/sitemap.xml` | Lists the homepage and all generated server and policy HTML pages |
+| `/index.md` | Directory overview and current server listings |
+| `/servers/<slug>/index.md` | Server instructions, client examples, and available plugin/policy information |
+| `/servers/<slug>/<kind>/index.md` | Existing Terms of Service or Privacy Policy content |
+
+Discovery files update automatically from the validated collections. The empty
+catalog produces a homepage-only sitemap and an accurate empty-directory
+overview; no server or policy content is invented. Markdown versions omit
+frontmatter, retain installation and configuration content, and pass the same
+Markdown safety checks as HTML documentation. HTML pages advertise `/llms.txt`
+and their Markdown counterpart through link relations. The 404 page remains
+`noindex` and has no Markdown version. Markdown and discovery files are excluded
+from the sitemap; optional sitemap dates and ranking hints are omitted.
+
+TXT files use `text/plain`, Markdown uses `text/markdown`, and the sitemap uses
+`application/xml`, all with UTF-8 encoding. `public/_headers` sets these types
+for Cloudflare Static Assets while retaining the site's security headers.
+Verify exact file URLs with `pnpm exec wrangler dev --local`; each must return
+200 with the intended content type and no trailing-slash redirect. Astro preview
+does not apply Cloudflare header rules.
+
+### Verification commands
+
 ```sh
 pnpm run lint
 pnpm run tsgo
@@ -171,6 +203,7 @@ drop-in replacement, so no custom build integration is introduced. Framework,
 lint, and type-check packages are build-time dependencies.
 
 `scripts/check-dist.mjs` checks copied headers, required pages, link schemes,
+discovery files, exact sitemap coverage, Markdown counterparts and llms.txt links,
 and absence of inline scripts/styles, JavaScript output, source maps, and runtime
 bundles. CI uses a frozen lockfile and uploads `dist/` after verification.
 Generated output, caches, and credentials are ignored by Git.

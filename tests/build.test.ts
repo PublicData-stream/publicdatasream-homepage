@@ -85,6 +85,27 @@ test('static builds handle empty and populated catalogs, plugins, policies, and 
       assertFontStylesheet(await readFile(join(fixture, 'dist', path), 'utf8'));
     }
     assert.equal(await checkDist(join(fixture, 'dist'), join(fixture, 'public/_headers')), 2);
+    const readOutput = (path: string) => readFile(join(fixture, 'dist', path), 'utf8');
+    assert.match(await readOutput('llms.txt'), /No servers listed yet/);
+    assert.match(await readOutput('index.md'), /No servers listed yet/);
+    assert.deepEqual([...((await readOutput('sitemap.xml')).matchAll(/<loc>(.*?)<\/loc>/g))].map(([, url]) => url), ['https://publicdata.stream/']);
+    assert.equal(await readOutput('robots.txt'), 'User-agent: *\nAllow: /\n\nSitemap: https://publicdata.stream/sitemap.xml\n');
+    assert.match(await readOutput('index.html'), /rel="alternate" type="text\/markdown" href="\/index.md"/);
+    assert(!/rel="alternate"|rel="describedby"/.test(await readOutput('404.html')));
+
+    // The deploy-time guard must detect stale or broken discovery artifacts.
+    const sitemap = await readOutput('sitemap.xml');
+    await writeFile(join(fixture, 'dist/sitemap.xml'), sitemap.replace('</urlset>', '<url><loc>https://publicdata.stream/404/</loc></url>\n</urlset>'));
+    await assert.rejects(checkDist(join(fixture, 'dist'), join(fixture, 'public/_headers')), /Sitemap must cover/);
+    await writeFile(join(fixture, 'dist/sitemap.xml'), sitemap);
+    const directoryMarkdown = await readOutput('index.md');
+    await rm(join(fixture, 'dist/index.md'));
+    await assert.rejects(checkDist(join(fixture, 'dist'), join(fixture, 'public/_headers')), /Markdown counterpart/);
+    await writeFile(join(fixture, 'dist/index.md'), directoryMarkdown);
+    const llms = await readOutput('llms.txt');
+    await writeFile(join(fixture, 'dist/llms.txt'), llms.replace('/index.md', '/missing.md'));
+    await assert.rejects(checkDist(join(fixture, 'dist'), join(fixture, 'public/_headers')), /llms.txt must link/);
+    await writeFile(join(fixture, 'dist/llms.txt'), llms);
 
     const serverFile = join(fixture, 'src/content/servers/fixture.md');
     await writeFile(serverFile, serverFixture);
@@ -100,6 +121,15 @@ test('static builds handle empty and populated catalogs, plugins, policies, and 
     assert(!page.includes('Terms of Service'));
     assert(!page.includes('Privacy Policy'));
     assert.equal(await checkDist(join(fixture, 'dist'), join(fixture, 'public/_headers')), 3);
+    const serverMarkdown = await readOutput('servers/fixture/index.md');
+    assert.match(serverMarkdown, /### Getting started/);
+    assert.match(serverMarkdown, /### Codex/);
+    assert.match(serverMarkdown, /### Claude Code/);
+    assert(serverMarkdown.includes('<script>example</script>'));
+    assert(!serverMarkdown.startsWith('---'));
+    assert(!serverMarkdown.includes('ChatGPT plugin'));
+    assert(!serverMarkdown.includes('## Policies'));
+    assert.match(await readOutput('llms.txt'), /https:\/\/publicdata.stream\/servers\/fixture\/index.md/);
 
     const populated = serverFixture.replace('capabilities: [mcp, api]', `capabilities: [mcp, api]
 chatgptPlugin:
@@ -108,6 +138,19 @@ chatgptPlugin:
 terms: fixture-terms
 privacy: fixture-privacy`);
     await writeFile(serverFile, populated);
+    await writeFile(join(fixture, 'src/content/servers/offline-api.md'), `---
+slug: offline-api
+name: Offline API fixture
+description: Synthetic unsupported-client fixture.
+capabilities: [api]
+codex:
+  unsupported: This API has no MCP transport.
+claude:
+  client: Claude Desktop
+  unsupported: This API has no MCP transport.
+---
+Offline documentation only.
+`);
     for (const kind of ['terms', 'privacy']) {
       await writeFile(join(fixture, `src/content/policies/fixture-${kind}.md`), `---
 slug: fixture-${kind}
@@ -124,9 +167,19 @@ Synthetic policy fixture; not legal text.
     assert.match(withPlugin, /https:\/\/example.org\/plugin/);
     assert.match(withPlugin, /href="\/servers\/fixture\/terms\/"/);
     assert.match(withPlugin, /href="\/servers\/fixture\/privacy\/"/);
-    assert.equal(await checkDist(join(fixture, 'dist'), join(fixture, 'public/_headers')), 5);
+    assert.equal(await checkDist(join(fixture, 'dist'), join(fixture, 'public/_headers')), 6);
+    const pluginMarkdown = await readOutput('servers/fixture/index.md');
+    assert.match(pluginMarkdown, /## ChatGPT plugin/);
+    assert.match(pluginMarkdown, /https:\/\/example.org\/plugin/);
+    assert.match(pluginMarkdown, /https:\/\/publicdata.stream\/servers\/fixture\/terms\/index.md/);
+    assert.match(pluginMarkdown, /https:\/\/publicdata.stream\/servers\/fixture\/privacy\/index.md/);
+    const unsupportedMarkdown = await readOutput('servers/offline-api/index.md');
+    assert.equal((unsupportedMarkdown.match(/This API has no MCP transport/g) ?? []).length, 2);
+    assert.match(unsupportedMarkdown, /### Claude Desktop/);
+    assert.match(await readOutput('llms.txt'), /## Optional/);
     for (const kind of ['terms', 'privacy']) {
       assertFontStylesheet(await readFile(join(fixture, `dist/servers/fixture/${kind}/index.html`), 'utf8'));
+      assert.match(await readOutput(`servers/fixture/${kind}/index.md`), /Synthetic policy fixture/);
     }
 
     // Exercise the actual Astro Markdown pipeline, not only the standalone plugin.
