@@ -1,12 +1,14 @@
 import assert from 'node:assert/strict';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { cp, mkdtemp, mkdir, readFile, rm, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { test } from 'node:test';
-import { checkDist } from '../scripts/check-dist.mjs';
+import { fileURLToPath } from 'node:url';
+import { checkDist } from '../scripts/check-dist.ts';
 
 const root = resolve(import.meta.dirname, '..');
+const tsxCli = fileURLToPath(import.meta.resolve('tsx/cli'));
 const fontStylesheet = 'https://cdn.jsdelivr.net/npm/@fontsource-variable/google-sans-flex@5.3.1/index.min.css';
 
 function assertFontStylesheet(html: string) {
@@ -79,12 +81,21 @@ test('static builds handle empty and populated catalogs, plugins, policies, and 
       stdio: 'pipe',
       timeout: 30_000,
     });
+    const checkOutput = () => spawnSync(process.execPath, [tsxCli, join(root, 'scripts/check-dist.ts')], {
+      cwd: fixture,
+      encoding: 'utf8',
+      timeout: 10_000,
+    });
     build();
     assert.match(await readFile(join(fixture, 'dist/index.html'), 'utf8'), /No servers listed yet/);
     for (const path of ['index.html', '404.html']) {
       assertFontStylesheet(await readFile(join(fixture, 'dist', path), 'utf8'));
     }
     assert.equal(await checkDist(join(fixture, 'dist'), join(fixture, 'public/_headers')), 2);
+    const validOutput = checkOutput();
+    assert.ifError(validOutput.error);
+    assert.equal(validOutput.status, 0, validOutput.stderr);
+    assert.match(validOutput.stdout, /^Static output verified: 2 HTML pages;/);
     const readOutput = (path: string) => readFile(join(fixture, 'dist', path), 'utf8');
     assert.match(await readOutput('llms.txt'), /No servers listed yet/);
     assert.match(await readOutput('index.md'), /No servers listed yet/);
@@ -97,6 +108,11 @@ test('static builds handle empty and populated catalogs, plugins, policies, and 
     const sitemap = await readOutput('sitemap.xml');
     await writeFile(join(fixture, 'dist/sitemap.xml'), sitemap.replace('</urlset>', '<url><loc>https://publicdata.stream/404/</loc></url>\n</urlset>'));
     await assert.rejects(checkDist(join(fixture, 'dist'), join(fixture, 'public/_headers')), /Sitemap must cover/);
+    const invalidOutput = checkOutput();
+    assert.ifError(invalidOutput.error);
+    assert.equal(invalidOutput.status, 1);
+    assert.match(invalidOutput.stderr, /Sitemap must cover/);
+    assert.equal(invalidOutput.stdout, '');
     await writeFile(join(fixture, 'dist/sitemap.xml'), sitemap);
     const directoryMarkdown = await readOutput('index.md');
     await rm(join(fixture, 'dist/index.md'));

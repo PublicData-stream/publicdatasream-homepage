@@ -202,11 +202,15 @@ Astro uses Vite 8 and its bundled Rolldown pipeline. Rspack is not a supported
 drop-in replacement, so no custom build integration is introduced. Framework,
 lint, and type-check packages are build-time dependencies.
 
-`scripts/check-dist.mjs` checks copied headers, required pages, link schemes,
+`scripts/check-dist.ts` checks copied headers, required pages, link schemes,
 discovery files, exact sitemap coverage, Markdown counterparts and llms.txt links,
 and absence of inline scripts/styles, JavaScript output, source maps, and runtime
 bundles. CI uses a frozen lockfile and uploads `dist/` after verification.
 Generated output, caches, and credentials are ignored by Git.
+
+The TypeScript validation scripts and Node test suite run through the pinned
+`tsx` development dependency. Type checking remains a separate step; both
+`pnpm run tsgo` and `pnpm run check:astro` include the validation scripts.
 
 ## Cloudflare Workers Static Assets deployment
 
@@ -229,7 +233,7 @@ Configure:
 | Production branch | `main` |
 | Build command | `pnpm run build` |
 | Deploy command | `pnpm run deploy` |
-| Preview command, if enabled | `pnpm run check:cloudflare && node scripts/check-dist.mjs && pnpm exec wrangler preview --ignore-base-config` |
+| Preview command, if enabled | `pnpm run check:cloudflare && pnpm exec tsx scripts/check-dist.ts && pnpm exec wrangler preview --ignore-base-config` |
 
 Under **Settings > Build > Build Variables and Secrets**, add plain build variables:
 

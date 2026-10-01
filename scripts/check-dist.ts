@@ -1,25 +1,27 @@
 import { readFile, readdir } from 'node:fs/promises';
 import { join, relative, sep } from 'node:path';
 import assert from 'node:assert/strict';
+import type { Nodes } from 'mdast';
 import remarkParse from 'remark-parse';
 import { unified } from 'unified';
 import { isAllowedContentLink } from '../src/lib/safety.ts';
 import { validateMarkdown } from '../src/lib/discovery.ts';
 
-function decodeEntities(value) {
-  return value.replace(/&#(?:x([\da-f]+)|(\d+));/gi, (_, hex, decimal) => String.fromCodePoint(Number.parseInt(hex || decimal, hex ? 16 : 10)))
+function decodeEntities(value: string): string {
+  return value.replace(/&#(?:x([\da-f]+)|(\d+));/gi, (_: string, hex: string | undefined, decimal: string | undefined) =>
+    String.fromCodePoint(Number.parseInt(hex ?? decimal ?? '', hex ? 16 : 10)))
     .replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
 }
 
-function linkTags(html, relation) {
+function linkTags(html: string, relation: string): string[] {
   return (html.match(/<link\b[^>]*>/g) ?? []).filter((tag) => tag.includes(`rel="${relation}"`));
 }
 
-function linkHref(tag) {
+function linkHref(tag: string | undefined): string {
   return decodeEntities(tag?.match(/\bhref="([^"]*)"/)?.[1] ?? '');
 }
 
-export async function checkDist(directory = 'dist', headersSource = 'public/_headers') {
+export async function checkDist(directory = 'dist', headersSource = 'public/_headers'): Promise<number> {
   const headers = await readFile(join(directory, '_headers'), 'utf8');
   assert.equal(headers, await readFile(headersSource, 'utf8'), 'Security headers must be copied unchanged.');
   await readFile(join(directory, 'index.html'));
@@ -30,12 +32,12 @@ export async function checkDist(directory = 'dist', headersSource = 'public/_hea
   const origin = new URL(sitemapUrl).origin;
   assert.equal(sitemapUrl, `${origin}/sitemap.xml`);
   assert.equal(robots, `User-agent: *\nAllow: /\n\nSitemap: ${sitemapUrl}\n`);
-  const canonicalPages = new Set();
-  const expectedMarkdown = new Set();
-  const markdownFiles = new Set();
+  const canonicalPages = new Set<string>();
+  const expectedMarkdown = new Set<string>();
+  const markdownFiles = new Set<string>();
   const forbidden = new Set(['_worker.js', '_routes.json', 'functions', 'server', 'node_modules']);
   let pages = 0;
-  async function inspect(path) {
+  async function inspect(path: string): Promise<void> {
     for (const entry of await readdir(path, { withFileTypes: true })) {
       assert(!forbidden.has(entry.name), `Unexpected runtime output: ${entry.name}`);
       const filename = join(path, entry.name);
@@ -85,7 +87,7 @@ export async function checkDist(directory = 'dist', headersSource = 'public/_hea
   assert(body !== undefined, 'Sitemap must use the UTF-8 XML urlset format.');
   const entries = [...body.matchAll(/\s*<url><loc>([^<]*)<\/loc><\/url>\s*/g)];
   assert.equal(entries.map(([entry]) => entry).join(''), body, 'Sitemap must contain only URL entries.');
-  const urls = entries.map(([, value]) => {
+  const urls = entries.map(([, value = '']) => {
     assert(!/&(?!amp;|lt;|gt;|quot;|apos;)/.test(value), 'Sitemap values must be XML-escaped.');
     return decodeEntities(value);
   });
@@ -94,8 +96,8 @@ export async function checkDist(directory = 'dist', headersSource = 'public/_hea
   const llms = validateMarkdown(await readFile(join(directory, 'llms.txt'), 'utf8'));
   assert(llms.startsWith('# publicdata.stream\n'), 'llms.txt must name the site.');
   const llmsTree = unified().use(remarkParse).parse(llms);
-  const destinations = [];
-  function inspectLlms(node) {
+  const destinations: string[] = [];
+  function inspectLlms(node: Nodes): void {
     if (node.type === 'link') {
       const url = new URL(node.url);
       assert.equal(url.origin, origin);
