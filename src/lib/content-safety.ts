@@ -1,40 +1,40 @@
-import type { Root, RootContent } from 'mdast';
-import type { Plugin } from 'unified';
-import { assertSafeExample, isAllowedContentLink } from './safety.ts';
+import type { Root, RootContent } from 'mdast'
+import type { Plugin } from 'unified'
+import { AssertSafeExample, IsAllowedContentLink } from './safety.ts'
 
-const contentSafety: Plugin<[], Root> = () => (tree, file) => {
-  const definitions = new Map<string, string>();
-  function collectDefinitions(node: Root | RootContent): void {
-    if (node.type === 'definition') definitions.set(node.identifier, node.url);
-    if ('children' in node) for (const child of node.children) collectDefinitions(child);
+const ContentSafety: Plugin<[], Root> = () => (Tree, File) => {
+  const Definitions = new Map<string, string>()
+  function CollectDefinitions(Node: Root | RootContent): void {
+    if (Node.type === 'definition') Definitions.set(Node.identifier, Node.url)
+    if ('children' in Node) for (const Child of Node.children) CollectDefinitions(Child)
   }
-  collectDefinitions(tree);
-  function inspect(node: Root | RootContent): void {
-    if (node.type === 'html') file.fail('Raw HTML is not allowed in site Markdown.', node);
-    if (node.type === 'link' || node.type === 'definition' || node.type === 'image') {
-      if (!isAllowedContentLink(node.url)) {
-        file.fail('Links must use absolute HTTPS URLs, root-relative site paths, or fragments.', node);
+  CollectDefinitions(Tree)
+  function Inspect(Node: Root | RootContent): void {
+    if (Node.type === 'html') File.fail('Raw HTML is not allowed in site Markdown.', Node)
+    if (Node.type === 'link' || Node.type === 'definition' || Node.type === 'image') {
+      if (!IsAllowedContentLink(Node.url)) {
+        File.fail('Links must use absolute HTTPS URLs, root-relative site paths, or fragments.', Node)
       }
-      if (node.type === 'image' && !/^\/(?!\/)/.test(node.url)) {
-        file.fail('Images must use local root-relative asset paths to match the site CSP.', node);
-      }
-    }
-    if (node.type === 'imageReference') {
-      const destination = definitions.get(node.identifier);
-      if (destination && !/^\/(?!\/)/.test(destination)) {
-        file.fail('Images must use local root-relative asset paths to match the site CSP.', node);
+      if (Node.type === 'image' && !/^\/(?!\/)/.test(Node.url)) {
+        File.fail('Images must use local root-relative asset paths to match the site CSP.', Node)
       }
     }
-    if (node.type === 'code' || node.type === 'inlineCode') {
+    if (Node.type === 'imageReference') {
+      const Destination = Definitions.get(Node.identifier)
+      if (Destination && !/^\/(?!\/)/.test(Destination)) {
+        File.fail('Images must use local root-relative asset paths to match the site CSP.', Node)
+      }
+    }
+    if (Node.type === 'code' || Node.type === 'inlineCode') {
       try {
-        assertSafeExample(node.value);
+        AssertSafeExample(Node.value)
       } catch {
-        file.fail('Code example may contain credentials. Use environment references or placeholders.', node);
+        File.fail('Code example may contain credentials. Use environment references or placeholders.', Node)
       }
     }
-    if ('children' in node) for (const child of node.children) inspect(child);
+    if ('children' in Node) for (const Child of Node.children) Inspect(Child)
   }
-  inspect(tree);
-};
+  Inspect(Tree)
+}
 
-export default contentSafety;
+export default ContentSafety

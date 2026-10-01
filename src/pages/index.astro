@@ -1,7 +1,7 @@
 ---
-import SiteLayout from '../layouts/SiteLayout.astro';
-import { getCatalog } from '../lib/catalog.ts';
-const { servers } = await getCatalog();
+import SiteLayout from '../layouts/SiteLayout.astro'
+import { GetCatalog } from '../lib/catalog.ts'
+const { Servers } = await GetCatalog()
 ---
 <SiteLayout title="Public data server directory">
   <section class="hero" aria-labelledby="hero-title">
@@ -15,20 +15,20 @@ const { servers } = await getCatalog();
   <section id="servers" class="directory" aria-labelledby="servers-title">
     <div class="section-heading">
       <div><p class="eyebrow">Find your connection</p><h2 id="servers-title">Server directory</h2></div>
-      <span class="count-label">{servers.length} {servers.length === 1 ? 'server' : 'servers'}</span>
+      <span class="count-label">{Servers.length} {Servers.length === 1 ? 'server' : 'servers'}</span>
     </div>
-    {servers.length === 0 ? (
+    {Servers.length === 0 ? (
       <div class="empty-state">
         <span class="empty-mark" aria-hidden="true">[ + ]</span>
         <div><h3>No servers listed yet.</h3><p>Server documentation will appear here as it is added.</p></div>
       </div>
     ) : (
       <ul class="server-grid">
-        {servers.map(({ data }) => (
+        {Servers.map(({ data: Data }) => (
           <li class="server-card">
-            <div class="badges">{data.capabilities.map((capability) => <span class="badge">{capability.toUpperCase()}</span>)}</div>
-            <h3><a href={`/servers/${data.slug}/`}>{data.name}<span aria-hidden="true"> ↗</span></a></h3>
-            <p>{data.description}</p>
+            <div class="badges">{Data.capabilities.map((Capability) => <span class="badge">{Capability.toUpperCase()}</span>)}</div>
+            <h3><a href={`/servers/${Data.slug}/`}>{Data.name}<span aria-hidden="true"> ↗</span></a></h3>
+            <p>{Data.description}</p>
             <span class="card-caption">Installation &amp; client configuration</span>
           </li>
         ))}

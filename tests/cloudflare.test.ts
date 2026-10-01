@@ -1,16 +1,20 @@
-import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
-import { test } from 'node:test';
-import { assertStaticDeployment } from '../scripts/check-cloudflare.ts';
+import assert from 'node:assert/strict'
+import { readFile } from 'node:fs/promises'
+import { test } from 'node:test'
+import { AssertStaticDeployment } from '../scripts/check-cloudflare.ts'
 
-const config = JSON.parse(await readFile(new URL('../wrangler.jsonc', import.meta.url), 'utf8'));
+const ParsedConfig: unknown = JSON.parse(await readFile(new URL('../wrangler.jsonc', import.meta.url), 'utf8'))
+assert(ParsedConfig !== null && typeof ParsedConfig === 'object' && !Array.isArray(ParsedConfig))
+const Config = ParsedConfig as Record<string, unknown>
+assert(Config.assets !== null && typeof Config.assets === 'object' && !Array.isArray(Config.assets))
+const Assets = Config.assets as Record<string, unknown>
 
 test('the deployment configuration serves the verified static site', () => {
-  assert.doesNotThrow(() => assertStaticDeployment(config));
-});
+  assert.doesNotThrow(() => AssertStaticDeployment(Config))
+})
 
 test('deployment verification rejects executable code, provisioning, and environment overrides', () => {
-  const runtimeOptions = {
+  const RuntimeOptions = {
     main: 'src/worker.ts',
     kv_namespaces: [{ binding: 'CACHE', id: 'synthetic' }],
     d1_databases: [{ binding: 'DB', database_id: 'synthetic' }],
@@ -23,26 +27,26 @@ test('deployment verification rejects executable code, provisioning, and environ
     build: { command: 'generate-worker' },
     observability: { enabled: true },
     future_resource: { binding: 'FUTURE' },
-  };
-  for (const [key, value] of Object.entries(runtimeOptions)) {
-    assert.throws(() => assertStaticDeployment({ ...config, [key]: value }), /static-only deployment contract/, key);
   }
-});
+  for (const [Key, Value] of Object.entries(RuntimeOptions)) {
+    assert.throws(() => AssertStaticDeployment({ ...Config, [Key]: Value }), /static-only deployment contract/, Key)
+  }
+})
 
 test('deployment verification rejects asset bindings, script-first routing, and alternate output', () => {
-  for (const override of [
+  for (const Override of [
     { binding: 'ASSETS' },
     { run_worker_first: true },
     { run_worker_first: ['/api/*'] },
     { directory: './' },
     { not_found_handling: 'single-page-application' },
   ]) {
-    assert.throws(() => assertStaticDeployment({ ...config, assets: { ...config.assets, ...override } }));
+    assert.throws(() => AssertStaticDeployment({ ...Config, assets: { ...Assets, ...Override } }))
   }
-});
+})
 
 test('deployment verification rejects missing or malformed configuration objects', () => {
-  for (const invalid of [null, [], {}, { ...config, assets: null }, { ...config, assets: [] }]) {
-    assert.throws(() => assertStaticDeployment(invalid));
+  for (const Invalid of [null, [], {}, { ...Config, assets: null }, { ...Config, assets: [] }]) {
+    assert.throws(() => AssertStaticDeployment(Invalid))
   }
-});
+})

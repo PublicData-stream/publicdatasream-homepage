@@ -3,14 +3,14 @@ interface Props {
   title: string;
   example: { format: string; config: string } | { unsupported: string };
 }
-const { title, example } = Astro.props;
+const { title: Title, example: Example } = Astro.props
 ---
-<section class="configuration" aria-label={`${title} configuration`}>
-  <h3>{title}</h3>
-  {'config' in example ? (
+<section class="configuration" aria-label={`${Title} configuration`}>
+  <h3>{Title}</h3>
+  {'config' in Example ? (
     <>
-      <div class="code-label">{example.format.toUpperCase()}</div>
-      <pre tabindex="0" aria-label={`${title} configuration example`}><code>{example.config}</code></pre>
+      <div class="code-label">{Example.format.toUpperCase()}</div>
+      <pre tabindex="0" aria-label={`${Title} configuration example`}><code>{Example.config}</code></pre>
     </>
-  ) : <p>{example.unsupported}</p>}
+  ) : <p>{Example.unsupported}</p>}
 </section>

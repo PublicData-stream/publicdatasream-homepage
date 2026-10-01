@@ -1,25 +1,25 @@
 ---
-import { render, type CollectionEntry } from 'astro:content';
-import type { GetStaticPaths } from 'astro';
-import SiteLayout from '../../../layouts/SiteLayout.astro';
-import { getCatalog } from '../../../lib/catalog.ts';
+import { render, type CollectionEntry } from 'astro:content'
+import type { GetStaticPaths } from 'astro'
+import SiteLayout from '../../../layouts/SiteLayout.astro'
+import { GetCatalog } from '../../../lib/catalog.ts'
 
 export const getStaticPaths = (async () => {
-  const { policies } = await getCatalog();
-  return policies.map((policy) => ({
-    params: { slug: policy.data.server, kind: policy.data.kind },
-    props: { policy },
-  }));
-}) satisfies GetStaticPaths;
+  const { Policies } = await GetCatalog()
+  return Policies.map((Policy) => ({
+    params: { slug: Policy.data.server, kind: Policy.data.kind },
+    props: { policy: Policy },
+  }))
+}) satisfies GetStaticPaths
 
 interface Props { policy: CollectionEntry<'policies'> }
-const { policy } = Astro.props;
-const { Content } = await render(policy);
+const { policy: Policy } = Astro.props
+const { Content } = await render(Policy)
 ---
-<SiteLayout title={policy.data.title}>
+<SiteLayout title={Policy.data.title}>
   <article class="document">
-    <a class="back-link" href={`/servers/${policy.data.server}/`}>← Server documentation</a>
-    <header class="document-header"><h1>{policy.data.title}</h1></header>
+    <a class="back-link" href={`/servers/${Policy.data.server}/`}>← Server documentation</a>
+    <header class="document-header"><h1>{Policy.data.title}</h1></header>
     <div class="prose"><Content /></div>
   </article>
 </SiteLayout>

@@ -1,9 +1,9 @@
-import { getCollection } from 'astro:content';
-import { validateCatalog } from './catalog-validation.ts';
+import { getCollection } from 'astro:content'
+import { ValidateCatalog } from './catalog-validation.ts'
 
-export async function getCatalog() {
-  const [servers, policies] = await Promise.all([getCollection('servers'), getCollection('policies')]);
-  validateCatalog(servers, policies);
-  servers.sort((a, b) => a.data.name.localeCompare(b.data.name, 'en') || a.data.slug.localeCompare(b.data.slug, 'en'));
-  return { servers, policies };
+export async function GetCatalog() {
+  const [Servers, Policies] = await Promise.all([getCollection('servers'), getCollection('policies')])
+  ValidateCatalog(Servers, Policies)
+  Servers.sort((A, B) => A.data.name.localeCompare(B.data.name, 'en') || A.data.slug.localeCompare(B.data.slug, 'en'))
+  return { Servers, Policies }
 }

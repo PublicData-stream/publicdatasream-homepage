@@ -1,6 +1,6 @@
 ---
-import '../styles/global.css';
-import { markdownPath } from '../lib/discovery.ts';
+import '../styles/global.css'
+import { MarkdownPath } from '../lib/discovery.ts'
 
 interface Props {
   title: string;
@@ -8,24 +8,24 @@ interface Props {
   noindex?: boolean;
 }
 const {
-  title,
-  description = 'Discover publicdata.stream MCP and API servers, installation instructions, and client configuration.',
-  noindex = false,
-} = Astro.props;
-const canonical = new URL(Astro.url.pathname, Astro.site);
+  title: Title,
+  description: Description = 'Discover publicdata.stream MCP and API servers, installation instructions, and client configuration.',
+  noindex: Noindex = false,
+} = Astro.props
+const Canonical = new URL(Astro.url.pathname, Astro.site)
 ---
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{title} · publicdata.stream</title>
-    <meta name="description" content={description} />
-    <link rel="canonical" href={canonical} />
-    {!noindex && <link rel="describedby" href="/llms.txt" />}
-    {!noindex && <link rel="alternate" type="text/markdown" href={markdownPath(Astro.url.pathname)} />}
+    <title>{Title} · publicdata.stream</title>
+    <meta name="description" content={Description} />
+    <link rel="canonical" href={Canonical} />
+    {!Noindex && <link rel="describedby" href="/llms.txt" />}
+    {!Noindex && <link rel="alternate" type="text/markdown" href={MarkdownPath(Astro.url.pathname)} />}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource-variable/google-sans-flex@5.3.1/index.min.css" />
-    {noindex && <meta name="robots" content="noindex" />}
+    {Noindex && <meta name="robots" content="noindex" />}
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>

@@ -11,32 +11,32 @@ export interface PolicyRecord {
 }
 
 /** Validate cross-entry contracts before any page is published. */
-export function validateCatalog(servers: ServerRecord[], policies: PolicyRecord[]): void {
-  const serverSlugs = new Set<string>();
-  const policyBySlug = new Map<string, PolicyRecord>();
-  const policyRoutes = new Set<string>();
-  for (const server of servers) {
-    if (serverSlugs.has(server.data.slug)) throw new Error(`Duplicate server slug: ${server.data.slug}`);
-    if (!server.body?.trim()) throw new Error(`Server ${server.id} needs Markdown installation instructions.`);
-    serverSlugs.add(server.data.slug);
+export function ValidateCatalog(Servers: ServerRecord[], Policies: PolicyRecord[]): void {
+  const ServerSlugs = new Set<string>()
+  const PolicyBySlug = new Map<string, PolicyRecord>()
+  const PolicyRoutes = new Set<string>()
+  for (const Server of Servers) {
+    if (ServerSlugs.has(Server.data.slug)) throw new Error(`Duplicate server slug: ${Server.data.slug}`)
+    if (!Server.body?.trim()) throw new Error(`Server ${Server.id} needs Markdown installation instructions.`)
+    ServerSlugs.add(Server.data.slug)
   }
-  for (const policy of policies) {
-    const { slug, server, kind } = policy.data;
-    if (policyBySlug.has(slug)) throw new Error(`Duplicate policy slug: ${slug}`);
-    if (!serverSlugs.has(server)) throw new Error(`Policy ${policy.id} references an unknown server.`);
-    if (!policy.body?.trim()) throw new Error(`Policy ${policy.id} needs policy content.`);
-    const route = `${server}/${kind}`;
-    if (policyRoutes.has(route)) throw new Error(`Duplicate policy route: ${route}`);
-    policyBySlug.set(slug, policy);
-    policyRoutes.add(route);
+  for (const Policy of Policies) {
+    const { slug: Slug, server: Server, kind: Kind } = Policy.data
+    if (PolicyBySlug.has(Slug)) throw new Error(`Duplicate policy slug: ${Slug}`)
+    if (!ServerSlugs.has(Server)) throw new Error(`Policy ${Policy.id} references an unknown server.`)
+    if (!Policy.body?.trim()) throw new Error(`Policy ${Policy.id} needs policy content.`)
+    const Route = `${Server}/${Kind}`
+    if (PolicyRoutes.has(Route)) throw new Error(`Duplicate policy route: ${Route}`)
+    PolicyBySlug.set(Slug, Policy)
+    PolicyRoutes.add(Route)
   }
-  for (const server of servers) {
-    for (const kind of ['terms', 'privacy'] as const) {
-      const reference = server.data[kind];
-      if (!reference) continue;
-      const policy = policyBySlug.get(reference);
-      if (!policy || policy.data.server !== server.data.slug || policy.data.kind !== kind) {
-        throw new Error(`Server ${server.id} has an invalid ${kind} policy reference.`);
+  for (const Server of Servers) {
+    for (const Kind of ['terms', 'privacy'] as const) {
+      const Reference = Server.data[Kind]
+      if (!Reference) continue
+      const Policy = PolicyBySlug.get(Reference)
+      if (!Policy || Policy.data.server !== Server.data.slug || Policy.data.kind !== Kind) {
+        throw new Error(`Server ${Server.id} has an invalid ${Kind} policy reference.`)
       }
     }
   }
