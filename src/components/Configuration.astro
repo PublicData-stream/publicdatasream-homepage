@@ -1,0 +1,16 @@
+---
+interface Props {
+  title: string;
+  example: { format: string; config: string } | { unsupported: string };
+}
+const { title, example } = Astro.props;
+---
+<section class="configuration" aria-label={`${title} configuration`}>
+  <h3>{title}</h3>
+  {'config' in example ? (
+    <>
+      <div class="code-label">{example.format.toUpperCase()}</div>
+      <pre tabindex="0" aria-label={`${title} configuration example`}><code>{example.config}</code></pre>
+    </>
+  ) : <p>{example.unsupported}</p>}
+</section>

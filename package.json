@@ -1,0 +1,34 @@
+{
+  "name": "publicdata-stream-homepage",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@12.8.1",
+  "engines": {
+    "node": "24.21.0",
+    "pnpm": "12.8.1"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "preview": "astro preview",
+    "lint": "oxlint --deny-warnings",
+    "tsgo": "astro sync && node node_modules/typescript-native/bin/tsc --noEmit -p tsconfig.json",
+    "check:astro": "astro check",
+    "test": "node --test tests/*.test.ts",
+    "build": "pnpm run lint && pnpm run tsgo && pnpm run check:astro && astro build && node scripts/check-dist.mjs",
+    "verify": "pnpm run test && pnpm run build"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.10",
+    "@astrojs/markdown-remark": "7.3.1",
+    "@types/mdast": "4.0.4",
+    "@types/node": "24.10.13",
+    "astro": "7.3.5",
+    "oxlint": "1.86.0",
+    "remark-parse": "11.0.0",
+    "typescript": "6.0.3",
+    "typescript-native": "npm:typescript@7.0.2",
+    "unified": "11.0.5",
+    "vfile": "6.0.3"
+  }
+}

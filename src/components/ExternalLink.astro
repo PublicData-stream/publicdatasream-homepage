@@ -1,0 +1,6 @@
+---
+import { isAllowedHttpsUrl } from '../lib/safety.ts';
+interface Props { href: string }
+const { href } = Astro.props;
+---
+{isAllowedHttpsUrl(href) ? <a href={href}><slot /></a> : <span><slot /></span>}

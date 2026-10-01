@@ -1,0 +1,3 @@
+# esbuild's installer verifies its native executable. Other scripts stay blocked.
+allowBuilds:
+  esbuild: true

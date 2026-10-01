@@ -1,0 +1,50 @@
+---
+import { render, type CollectionEntry } from 'astro:content';
+import type { GetStaticPaths } from 'astro';
+import Configuration from '../../components/Configuration.astro';
+import ExternalLink from '../../components/ExternalLink.astro';
+import SiteLayout from '../../layouts/SiteLayout.astro';
+import { getCatalog } from '../../lib/catalog.ts';
+
+export const getStaticPaths = (async () => {
+  const { servers } = await getCatalog();
+  return servers.map((server) => ({ params: { slug: server.data.slug }, props: { server } }));
+}) satisfies GetStaticPaths;
+
+interface Props { server: CollectionEntry<'servers'> }
+const { server } = Astro.props;
+const { data } = server;
+const { Content } = await render(server);
+---
+<SiteLayout title={data.name} description={data.description}>
+  <article class="document">
+    <a class="back-link" href="/#servers">← Server directory</a>
+    <header class="document-header">
+      <div class="badges">{data.capabilities.map((capability) => <span class="badge">{capability.toUpperCase()}</span>)}</div>
+      <h1>{data.name}</h1>
+      <p class="lede">{data.description}</p>
+    </header>
+    <section class="prose" aria-labelledby="installation-title">
+      <h2 id="installation-title">Installation &amp; configuration</h2>
+      <Content />
+    </section>
+    <section class="client-examples" aria-labelledby="clients-title">
+      <h2 id="clients-title">Client configuration</h2>
+      <Configuration title="Codex" example={data.codex} />
+      <Configuration title={data.claude.client} example={data.claude} />
+    </section>
+    {data.chatgptPlugin && (
+      <section class="prose" aria-labelledby="plugin-title">
+        <h2 id="plugin-title">ChatGPT plugin</h2>
+        <p class="preserve-lines">{data.chatgptPlugin.instructions}</p>
+        <ExternalLink href={data.chatgptPlugin.definitionUrl}>Plugin definition &amp; documentation ↗</ExternalLink>
+      </section>
+    )}
+    {(data.terms || data.privacy) && (
+      <nav class="policy-links" aria-label={`${data.name} policies`}>
+        {data.terms && <a href={`/servers/${data.slug}/terms/`}>Terms of Service</a>}
+        {data.privacy && <a href={`/servers/${data.slug}/privacy/`}>Privacy Policy</a>}
+      </nav>
+    )}
+  </article>
+</SiteLayout>
