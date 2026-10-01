@@ -183,7 +183,7 @@ pnpm run preview
 
 | Command | Checks or behavior |
 | --- | --- |
-| `pnpm run lint` | oxlint; warnings fail the command |
+| `pnpm run lint` | oxlint with custom style and type-aware TypeScript rules; warnings fail the command |
 | `pnpm run tsgo` | Astro type generation, then native TS 7 checking without emission |
 | `pnpm run check:astro` | Astro template and TypeScript diagnostics |
 | `pnpm run check:cloudflare` | Reject Worker code, bindings, provisioning, and environment overrides |
@@ -207,6 +207,17 @@ discovery files, exact sitemap coverage, Markdown counterparts and llms.txt link
 and absence of inline scripts/styles, JavaScript output, source maps, and runtime
 bundles. CI uses a frozen lockfile and uploads `dist/` after verification.
 Generated output, caches, and credentials are ignored by Git.
+
+The custom lint plugin requires PascalCase for local bindings, internal functions,
+and declared properties, single quotes for strings, and no optional semicolons.
+Keep external API names intact by aliasing destructured bindings, for example
+`const { data: Data } = Server`. Scoped naming exceptions preserve Astro's
+`getStaticPaths` and `collections` exports, component/route `Props` fields, and
+the content fields in `ServerRecord` and `PolicyRecord`. These exceptions do not
+exempt local bindings or unrelated interfaces. Multiline fixture strings use
+arrays of single-quoted lines joined with `\n`. `pnpm run lint --fix` removes
+optional semicolons while preserving statement boundaries and class-field syntax;
+naming and quote changes require review.
 
 The TypeScript validation scripts and Node test suite run through the pinned
 `tsx` development dependency. Type checking remains a separate step; both
