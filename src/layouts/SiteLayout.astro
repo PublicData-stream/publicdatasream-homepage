@@ -21,6 +21,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <title>{title} · publicdata.stream</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource-variable/google-sans-flex@5.3.1/index.min.css" />
     {noindex && <meta name="robots" content="noindex" />}
   </head>
   <body>

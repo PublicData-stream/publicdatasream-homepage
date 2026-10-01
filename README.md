@@ -207,7 +207,10 @@ After deployment:
 `public/_headers` is copied to `dist/_headers` and applied to static responses by
 Cloudflare. Astro's development and preview servers do not apply this file;
 local preview alone does not verify Cloudflare headers. CSP permits local CSS,
-images, and fonts and blocks scripts, network connections, forms, and framing.
+images, and fonts, plus the pinned Google Sans Flex stylesheet and font files
+from its jsDelivr package path. Scripts, application network connections, forms,
+and framing remain blocked. The site always uses a dark theme with Google Sans
+Flex Variable and system font fallbacks; code examples retain monospace fonts.
 The file also defines `X-Content-Type-Options`, `Referrer-Policy`,
 `Permissions-Policy`, and `X-Frame-Options`.
 [Cloudflare headers documentation](https://developers.cloudflare.com/pages/configuration/headers/)

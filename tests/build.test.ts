@@ -7,6 +7,37 @@ import { test } from 'node:test';
 import { checkDist } from '../scripts/check-dist.mjs';
 
 const root = resolve(import.meta.dirname, '..');
+const fontStylesheet = 'https://cdn.jsdelivr.net/npm/@fontsource-variable/google-sans-flex@5.3.1/index.min.css';
+
+function assertFontStylesheet(html: string) {
+  const head = html.match(/<head\b[^>]*>([\s\S]*?)<\/head>/)?.[1] ?? '';
+  const links = head.match(/<link\b[^>]*>/g) ?? [];
+  assert.equal(links.filter((link) => link.includes(`href="${fontStylesheet}"`) && /\brel="stylesheet"/.test(link)).length, 1,
+    'Every page must load the pinned font stylesheet once in its head.');
+}
+
+test('CSP permits only the pinned external font resources alongside local assets', async () => {
+  const headers = await readFile(join(root, 'public/_headers'), 'utf8');
+  const policy = headers.match(/^\s*Content-Security-Policy: (.+)$/m)?.[1];
+  assert(policy, 'Security headers must include a CSP.');
+  const directives = Object.fromEntries(policy.split(';').map((directive) => {
+    const [name, ...sources] = directive.trim().split(/\s+/);
+    return [name, sources];
+  }));
+  assert.deepEqual(directives, {
+    'default-src': ["'none'"],
+    'script-src': ["'none'"],
+    'style-src': ["'self'", fontStylesheet],
+    'img-src': ["'self'"],
+    'font-src': ["'self'", 'https://cdn.jsdelivr.net/npm/@fontsource-variable/google-sans-flex@5.3.1/files/'],
+    'connect-src': ["'none'"],
+    'object-src': ["'none'"],
+    'base-uri': ["'none'"],
+    'form-action': ["'none'"],
+    'frame-ancestors': ["'none'"],
+  });
+});
+
 const serverFixture = `---
 slug: fixture
 name: Fixture server
@@ -50,12 +81,16 @@ test('static builds handle empty and populated catalogs, plugins, policies, and 
     });
     build();
     assert.match(await readFile(join(fixture, 'dist/index.html'), 'utf8'), /No servers listed yet/);
+    for (const path of ['index.html', '404.html']) {
+      assertFontStylesheet(await readFile(join(fixture, 'dist', path), 'utf8'));
+    }
     assert.equal(await checkDist(join(fixture, 'dist'), join(fixture, 'public/_headers')), 2);
 
     const serverFile = join(fixture, 'src/content/servers/fixture.md');
     await writeFile(serverFile, serverFixture);
     build();
     const page = await readFile(join(fixture, 'dist/servers/fixture/index.html'), 'utf8');
+    assertFontStylesheet(page);
     assert.match(page, /Fixture server/);
     assert.match(page, /Codex/);
     assert.match(page, /Claude Code/);
@@ -90,6 +125,9 @@ Synthetic policy fixture; not legal text.
     assert.match(withPlugin, /href="\/servers\/fixture\/terms\/"/);
     assert.match(withPlugin, /href="\/servers\/fixture\/privacy\/"/);
     assert.equal(await checkDist(join(fixture, 'dist'), join(fixture, 'public/_headers')), 5);
+    for (const kind of ['terms', 'privacy']) {
+      assertFontStylesheet(await readFile(join(fixture, `dist/servers/fixture/${kind}/index.html`), 'utf8'));
+    }
 
     // Exercise the actual Astro Markdown pipeline, not only the standalone plugin.
     await writeFile(serverFile, `${populated}\n[unsafe](javascript:alert)\n`);

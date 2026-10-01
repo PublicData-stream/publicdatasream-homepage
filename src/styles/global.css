@@ -1,13 +1,17 @@
 @charset "UTF-8";
 
 :root {
-  color-scheme: light;
-  --paper: #f8f8f3;
-  --ink: #1b2f2a;
-  --muted: #52645c;
-  --accent: #276b55;
-  --line: #d8e0d7;
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color-scheme: dark;
+  --paper: #101714;
+  --ink: #e6eee8;
+  --muted: #a3b5aa;
+  --accent: #8ed6aa;
+  --line: #5b7464;
+  --surface: #19231d;
+  --code: #1d2a22;
+  --accent-hover: #b0e6c3;
+  --brand: #263d30;
+  font-family: "Google Sans Flex Variable", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   color: var(--ink);
   background: var(--paper);
   font-synthesis: none;
@@ -27,8 +31,8 @@ h1, h2, h3 { line-height: 1.16; letter-spacing: -.035em; }
 .site-header { min-height: 105px; display: flex; align-items: center; justify-content: space-between; gap: 1rem; border-bottom: 1px solid var(--line); }
 .wordmark { display: flex; align-items: center; color: var(--ink); text-decoration: none; font-size: 1.2rem; font-weight: 700; letter-spacing: -.04em; }
 .wordmark-suffix { font-weight: 400; }
-.brand-mark { display: inline-flex; width: 2.2rem; height: 2.2rem; align-items: center; justify-content: center; margin-right: .65rem; background: var(--ink); color: var(--paper); border-radius: .4rem; font-size: 1.6rem; }
-.brand-mark span { color: #9adcac; }
+.brand-mark { display: inline-flex; width: 2.2rem; height: 2.2rem; align-items: center; justify-content: center; margin-right: .65rem; background: var(--brand); color: var(--ink); border-radius: .4rem; font-size: 1.6rem; }
+.brand-mark span { color: var(--accent); }
 .site-header nav { display: flex; gap: 2rem; font-size: .9rem; }
 .site-header nav a { color: var(--ink); text-decoration: none; }
 .hero { padding-top: clamp(3rem, 8vw, 6.5rem); }
@@ -37,8 +41,8 @@ h1, h2, h3 { line-height: 1.16; letter-spacing: -.035em; }
 .hero h1 { font-size: clamp(2.8rem, 7vw, 5.6rem); font-weight: 600; letter-spacing: -.065em; margin-bottom: 1.6rem; }
 .hero h1 span { color: var(--accent); }
 .hero-description { max-width: 44rem; color: var(--muted); font-size: clamp(1rem, 1.6vw, 1.18rem); line-height: 1.8; margin-bottom: 2rem; }
-.button-link { display: inline-flex; align-items: center; gap: 2rem; background: var(--ink); color: var(--paper); padding: .9rem 1.2rem; border-radius: .3rem; text-decoration: none; font-size: .9rem; font-weight: 550; }
-.button-link:hover { background: var(--accent); }
+.button-link { display: inline-flex; align-items: center; gap: 2rem; background: var(--accent); color: var(--paper); padding: .9rem 1.2rem; border-radius: .3rem; text-decoration: none; font-size: .9rem; font-weight: 550; }
+.button-link:hover { background: var(--accent-hover); }
 .hero-rule { display: flex; justify-content: space-between; gap: 1rem; margin-top: 4.5rem; padding-block: 1rem; border-top: 1px solid var(--line); color: var(--muted); font-size: .68rem; letter-spacing: .04em; }
 .directory { padding-block: 3.25rem 4rem; }
 .section-heading { display: flex; align-items: end; justify-content: space-between; gap: 1rem; margin-bottom: 2rem; }
@@ -46,7 +50,7 @@ h1, h2, h3 { line-height: 1.16; letter-spacing: -.035em; }
 h2 { font-size: clamp(1.8rem, 3vw, 2.45rem); font-weight: 550; margin-bottom: 1.25rem; }
 .section-heading h2 { margin-bottom: 0; }
 .count-label { color: var(--muted); font-size: .78rem; white-space: nowrap; }
-.empty-state { display: flex; align-items: center; gap: 2rem; padding: 3.25rem 2rem; border: 1px dashed #b5c6b9; background: #f1f4ed; border-radius: .45rem; }
+.empty-state { display: flex; align-items: center; gap: 2rem; padding: 3.25rem 2rem; border: 1px dashed var(--line); background: var(--surface); border-radius: .45rem; }
 .empty-state h3 { font-size: 1.2rem; font-weight: 550; margin-bottom: .6rem; }
 .empty-state p { color: var(--muted); font-size: .9rem; margin-bottom: 0; }
 .empty-mark { color: var(--accent); font-family: ui-monospace, monospace; font-size: 1.65rem; white-space: nowrap; }
@@ -79,9 +83,9 @@ h2 { font-size: clamp(1.8rem, 3vw, 2.45rem); font-weight: 550; margin-bottom: 1.
 .client-examples { margin-block: 3rem; }
 .configuration { margin-block: 1.5rem 2rem; min-width: 0; }
 .code-label { font-size: .65rem; letter-spacing: .08em; color: var(--muted); margin-bottom: .5rem; }
-pre { overflow-x: auto; max-width: 100%; padding: 1.25rem; border: 1px solid var(--line); background: #eef1eb; border-radius: .35rem; line-height: 1.6; font-size: .83rem; }
+pre { overflow-x: auto; max-width: 100%; padding: 1.25rem; border: 1px solid var(--line); background: var(--code); border-radius: .35rem; line-height: 1.6; font-size: .83rem; }
 code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
-:not(pre) > code { background: #eef1eb; padding: .1rem .3rem; border-radius: .2rem; }
+:not(pre) > code { background: var(--code); padding: .1rem .3rem; border-radius: .2rem; }
 .prose table { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; }
 .prose th, .prose td { padding: .6rem; border: 1px solid var(--line); }
 .policy-links { display: flex; flex-wrap: wrap; gap: 1.5rem; border-top: 1px solid var(--line); padding-top: 1.5rem; margin-top: 3rem; font-size: .9rem; }
