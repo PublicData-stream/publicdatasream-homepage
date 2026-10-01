@@ -1,5 +1,6 @@
 ---
 slug: example
+language: en
 name: Example server
 description: Replace with a verified description before adding this file to the catalog.
 capabilities: [mcp]

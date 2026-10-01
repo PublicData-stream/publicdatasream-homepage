@@ -44,7 +44,7 @@ test('empty discovery documents accurately describe the directory and use the co
 })
 
 test('Markdown retains client code verbatim, unsupported explanations, authored links, and optional content', () => {
-  const Policy = { data: { slug: 'fixture-terms', server: 'fixture', kind: 'terms' as const, title: 'Fixture Terms' }, body: 'Synthetic approved fixture body.' }
+  const Policy = { data: { language: 'en', slug: 'fixture-terms', server: 'fixture', kind: 'terms' as const, title: 'Fixture Terms' }, body: 'Synthetic approved fixture body.' }
   const Populated = { ...Server, data: { ...Server.data, terms: Policy.data.slug,
     chatgptPlugin: { definitionUrl: 'https://example.org/plugin', instructions: 'First line\nSecond line [literal] <markup>' } } }
   const Markdown = RenderServerMarkdown(Populated, Site)
@@ -86,14 +86,14 @@ test('Unicode, punctuation, and multiline metadata remain text rather than injec
 test('Markdown serializers reject unsafe bodies and credential examples without relying on HTML generation', () => {
   for (const Body of ['[unsafe](javascript:alert)', '<div>raw HTML</div>', '```sh\ntoken="fictional-literal"\n```']) {
     assert.throws(() => RenderServerMarkdown({ ...Server, body: Body }, Site))
-    assert.throws(() => RenderPolicyMarkdown({ data: { slug: 'terms', server: 'fixture', kind: 'terms', title: 'Terms' }, body: Body }, Site))
+    assert.throws(() => RenderPolicyMarkdown({ data: { language: 'en', slug: 'terms', server: 'fixture', kind: 'terms', title: 'Terms' }, body: Body }, Site))
   }
   assert.throws(() => RenderServerMarkdown({ ...Server, data: { ...Server.data, codex: { format: 'sh', config: 'token="fictional-literal"' } } }, Site), /credentials/)
 })
 
 test('sitemap URLs are sorted, deduplicated, escaped, and limited to HTML pages', () => {
   const Catalog = { Servers: [Server, Server], Policies: [
-    { data: { slug: 'privacy', server: 'fixture', kind: 'privacy' as const, title: 'Privacy' }, body: 'Fixture policy.' },
+    { data: { language: 'en', slug: 'privacy', server: 'fixture', kind: 'privacy' as const, title: 'Privacy' }, body: 'Fixture policy.' },
   ] }
   const Sitemap = RenderSitemap(Catalog, Site)
   assert.deepEqual([...Sitemap.matchAll(/<loc>(.*?)<\/loc>/g)].map(([, Url]) => Url), [

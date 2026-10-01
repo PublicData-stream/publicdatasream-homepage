@@ -1,5 +1,15 @@
 import { z } from 'astro/zod'
 import { AssertSafeExample, IsAllowedHttpsUrl } from './safety.ts'
+import { DefaultLanguage, NormalizeLanguage } from './languages.ts'
+
+export const LanguageSchema = z.string().default(DefaultLanguage).transform((Value, Context) => {
+  try {
+    return NormalizeLanguage(Value)
+  } catch {
+    Context.addIssue({ code: 'custom', message: 'Use a registered ISO 639-1 or ISO 639-3 language code without region or script subtags.' })
+    return z.NEVER
+  }
+})
 
 const RequiredText = z.string().trim().min(1)
 const SafeText = RequiredText.refine((Value) => {
@@ -20,6 +30,7 @@ const Unsupported = z.object({ unsupported: RequiredText }).strict()
 const ClaudeClient = z.enum(['Claude Desktop', 'Claude Code'])
 
 export const ServerSchema = z.object({
+  language: LanguageSchema,
   slug: Slug,
   name: RequiredText,
   description: RequiredText,
@@ -38,6 +49,7 @@ export const ServerSchema = z.object({
 }).strict()
 
 export const PolicySchema = z.object({
+  language: LanguageSchema,
   slug: Slug,
   server: Slug,
   kind: z.enum(['terms', 'privacy']),

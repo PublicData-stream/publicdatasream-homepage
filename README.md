@@ -45,6 +45,7 @@ generates `/servers/<slug>/`.
 | Frontmatter field | Meaning |
 | --- | --- |
 | `slug` | Unique identifier and route segment |
+| `language` | ISO 639-1 or ISO 639-3 document language; defaults to `en` |
 | `name`, `description` | Server name and concise description |
 | `capabilities` | Nonempty array containing `mcp`, `api`, or both |
 | `codex` | `{ format, config }` example, or `{ unsupported }` explanation |
@@ -136,6 +137,29 @@ Write the approved policy in the Markdown body. `kind` is `terms` or `privacy`;
 
 Missing references, mismatched server/kind, duplicate slugs or policy routes, and
 empty content fail validation. Omitted references render no policy links.
+
+## Language codes and translated content
+
+English is the default. `language` accepts registered ISO 639-1 and ISO 639-3
+codes from the pinned `iso-639-3` registry snapshot. Codes are trimmed and
+lowercased; three-letter codes with a two-letter equivalent normalize to that
+equivalent (`eng` to `en`, `kor` to `ko`). Languages without a two-letter code
+retain their three-letter code, such as `ace`. Unknown codes, special non-language
+codes, and region/script variants such as `en-US` and `zh-Hant` are rejected.
+
+The published language definitions live in `src/i18n/locales.ts`. Initially only
+English is published. Each language requires its canonical code, native display
+name, text direction, and a complete typed dictionary matching `src/i18n/en.ts`.
+Translations for unpublished languages fail catalog validation.
+
+Keep English Markdown directly in the existing collection directories. A
+translation is a complete document with the same logical `slug` and an explicit
+`language`, placed at `src/content/servers/<language>/<slug>.md` or
+`src/content/policies/<language>/<policy-slug>.md`. It must have an English
+counterpart; policy translations must also match its server and kind and have a
+server document in their language. Slugs and policy routes are unique within
+each language. Policy references resolve in the server document's language first,
+then English, and retain the existing server/kind validation.
 
 ## Checks and static builds
 
