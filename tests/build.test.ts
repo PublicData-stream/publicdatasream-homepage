@@ -7,18 +7,10 @@ import { test } from 'node:test'
 import { fileURLToPath } from 'node:url'
 import { CheckDist } from '../scripts/check-dist.ts'
 import { GetPublishedLanguages, DirectoryPath } from '../src/lib/localization.ts'
-import { LinkFixtureDependencies, ResetFixtureContent } from './fixtures.ts'
+import { AssertFontStylesheets, FontStylesheets, LinkFixtureDependencies, ResetFixtureContent } from './fixtures.ts'
 
 const Root = resolve(import.meta.dirname, '..')
 const TsxCli = fileURLToPath(import.meta.resolve('tsx/cli'))
-const FontStylesheet = 'https://cdn.jsdelivr.net/npm/@fontsource-variable/google-sans-flex@5.3.1/index.min.css'
-
-function AssertFontStylesheet(Html: string) {
-  const Head = Html.match(/<head\b[^>]*>([\s\S]*?)<\/head>/)?.[1] ?? ''
-  const Links = Head.match(/<link\b[^>]*>/g) ?? []
-  assert.equal(Links.filter((Link) => Link.includes(`href="${FontStylesheet}"`) && /\brel="stylesheet"/.test(Link)).length, 1,
-    'Every page must load the pinned font stylesheet once in its head.')
-}
 
 test('CSP permits only the pinned external font resources alongside local assets', async () => {
   const Headers = await readFile(join(Root, 'public/_headers'), 'utf8')
@@ -31,15 +23,57 @@ test('CSP permits only the pinned external font resources alongside local assets
   assert.deepEqual(Directives, {
     'default-src': ['\'none\''],
     'script-src': ['\'none\''],
-    'style-src': ['\'self\'', FontStylesheet],
+    'style-src': ['\'self\'', ...FontStylesheets],
     'img-src': ['\'self\''],
-    'font-src': ['\'self\'', 'https://cdn.jsdelivr.net/npm/@fontsource-variable/google-sans-flex@5.3.1/files/'],
+    'font-src': ['\'self\'',
+      'https://cdn.jsdelivr.net/npm/@fontsource-variable/google-sans-flex@5.3.1/files/',
+      'https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono@5.3.0/files/',
+      'https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/woff2-dynamic-subset/',
+    ],
     'connect-src': ['\'none\''],
     'object-src': ['\'none\''],
     'base-uri': ['\'none\''],
     'form-action': ['\'none\''],
     'frame-ancestors': ['\'none\''],
   })
+})
+
+test('Pretendard subsets cover modern Hangul without selecting any other script', async () => {
+  const Css = await readFile(join(Root, 'src/styles/fonts/pretendard-hangul.css'), 'utf8')
+  const HangulBlocks = [[0x1100, 0x11ff], [0x3130, 0x318f], [0xa960, 0xa97f],
+    [0xac00, 0xd7a3], [0xd7b0, 0xd7ff], [0xffa0, 0xffdc]]
+  const Coverage = new Set<number>()
+  const Sources = new Set<string>()
+  const Faces = [...Css.matchAll(/@font-face\s*\{([^}]+)\}/g)]
+  assert(Faces.length > 0, 'The local stylesheet must define Hangul faces.')
+  for (const Face of Faces) {
+    const Declaration = Face[1] ?? ''
+    assert.match(Declaration, /font-family:\s*"Pretendard Hangul";/)
+    assert.match(Declaration, /font-style:\s*normal;/)
+    assert.match(Declaration, /font-display:\s*swap;/)
+    assert.match(Declaration, /font-weight:\s*45 920;/)
+    const Source = Declaration.match(/src:\s*url\("([^"]+)"\) format\("woff2-variations"\);/)?.[1]
+    assert(Source)
+    assert.match(Source, /^https:\/\/cdn\.jsdelivr\.net\/npm\/pretendard@1\.3\.9\/dist\/web\/variable\/woff2-dynamic-subset\/PretendardVariable\.subset\.\d+\.woff2$/)
+    assert(!Sources.has(Source), 'Each subset must have exactly one face.')
+    Sources.add(Source)
+    const Ranges = Declaration.match(/unicode-range:\s*([^;]+);/)?.[1]
+    assert(Ranges, 'Every face must be restricted to Hangul.')
+    for (const Range of Ranges.split(',')) {
+      const Match = Range.trim().match(/^U\+([0-9A-F]+)(?:-([0-9A-F]+))?$/)
+      assert(Match)
+      const Start = Number.parseInt(Match[1] ?? '', 16)
+      const End = Number.parseInt(Match[2] ?? Match[1] ?? '', 16)
+      assert(Start <= End)
+      assert(HangulBlocks.some(([Low = 0, High = 0]) => Low <= Start && End <= High),
+        `A subset must not select Latin, punctuation, Hanja, or other scripts: ${Range}`)
+      for (let Code = Start; Code <= End; Code++) Coverage.add(Code)
+    }
+  }
+  for (let Code = 0xac00; Code <= 0xd7a3; Code++) {
+    assert(Coverage.has(Code), `Missing modern Hangul syllable U+${Code.toString(16)}`)
+  }
+  for (const Character of 'ㄱㅏ') assert(Coverage.has(Character.codePointAt(0) ?? 0))
 })
 
 const ServerFixture = [
@@ -95,14 +129,18 @@ test('static builds handle empty and populated catalogs, plugins, policies, and 
     Build()
     assert.match(await readFile(join(Fixture, 'dist/index.html'), 'utf8'), /No servers listed yet/)
     for (const Path of [...Directories.map((Directory) => `${Directory.slice(1)}index.html`), '404.html']) {
-      AssertFontStylesheet(await readFile(join(Fixture, 'dist', Path), 'utf8'))
+      AssertFontStylesheets(await readFile(join(Fixture, 'dist', Path), 'utf8'))
     }
     assert.equal(await CheckDist(join(Fixture, 'dist'), join(Fixture, 'public/_headers')), EmptyPageCount)
     const ValidOutput = CheckOutput()
     assert.ifError(ValidOutput.error)
     assert.equal(ValidOutput.status, 0, ValidOutput.stderr)
     assert(ValidOutput.stdout.startsWith(`Static output verified: ${EmptyPageCount} HTML pages;`))
-    const ReadOutput = (Path: string) => readFile(join(Fixture, 'dist', Path), 'utf8')
+    const ReadOutput = async (Path: string) => {
+      const Output = await readFile(join(Fixture, 'dist', Path), 'utf8')
+      if (Path.endsWith('.html')) AssertFontStylesheets(Output)
+      return Output
+    }
     assert.match(await ReadOutput('llms.txt'), /No servers listed yet/)
     assert.match(await ReadOutput('index.md'), /No servers listed yet/)
     assert.deepEqual([...((await ReadOutput('sitemap.xml')).matchAll(/<loc>(.*?)<\/loc>/g))].map(([, Url]) => Url),
@@ -134,7 +172,7 @@ test('static builds handle empty and populated catalogs, plugins, policies, and 
     await writeFile(ServerFile, ServerFixture)
     Build()
     const Page = await readFile(join(Fixture, 'dist/servers/fixture/index.html'), 'utf8')
-    AssertFontStylesheet(Page)
+    AssertFontStylesheets(Page)
     assert.match(Page, /Fixture server/)
     assert.match(Page, /Codex/)
     assert.match(Page, /Claude Code/)
@@ -205,7 +243,7 @@ Synthetic policy fixture; not legal text.
     assert.match(UnsupportedMarkdown, /### Claude Desktop/)
     assert.match(await ReadOutput('llms.txt'), /## Optional/)
     for (const Kind of ['terms', 'privacy']) {
-      AssertFontStylesheet(await readFile(join(Fixture, `dist/servers/fixture/${Kind}/index.html`), 'utf8'))
+      AssertFontStylesheets(await readFile(join(Fixture, `dist/servers/fixture/${Kind}/index.html`), 'utf8'))
       assert.match(await ReadOutput(`servers/fixture/${Kind}/index.md`), /Synthetic policy fixture/)
     }
 

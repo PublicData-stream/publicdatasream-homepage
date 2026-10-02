@@ -361,11 +361,30 @@ After deployment:
 `public/_headers` is copied to `dist/_headers` and applied to static responses by
 Workers Static Assets. Astro's development and preview servers do not apply this file;
 local preview alone does not verify Cloudflare headers. CSP permits local CSS,
-images, and fonts, plus the pinned Google Sans Flex stylesheet and font files
-from its jsDelivr package path. Scripts, application network connections, forms,
-and framing remain blocked. The site always uses a dark theme with Google Sans
-Flex Variable and system font fallbacks; code examples retain monospace fonts.
-The file also defines `X-Content-Type-Options`, `Referrer-Policy`,
+images, and fonts, plus the pinned Google Sans Flex and JetBrains Mono stylesheets
+and font files from their jsDelivr package paths, and the pinned Pretendard subset
+font directory. Scripts, application network connections, forms, and framing remain
+blocked. The site always uses a dark theme. Ordinary text uses Google Sans Flex
+Variable first, then Pretendard for supported Hangul characters, then system fonts.
+Code, keyboard input, sample output, and the empty-state mark use JetBrains Mono
+at normal weight 400, with Pretendard for Hangul and system monospace fallbacks.
+Korean glyphs in code retain Pretendard's proportional widths.
+
+The exact external stylesheets are Google Sans Flex
+`https://cdn.jsdelivr.net/npm/@fontsource-variable/google-sans-flex@5.3.1/index.min.css`
+and JetBrains Mono
+`https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono@5.3.0/400.min.css`.
+The Fontsource Pretendard package contains only Latin glyphs, so Korean uses a
+checked-in adaptation of the [official Pretendard 1.3.9 variable subset CSS](https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css)
+in `src/styles/fonts/pretendard-hangul.css`. It preserves the upstream weight range
+(45–920), attribution, font URLs, and Hangul coverage while excluding other scripts
+with `unicode-range`. Only subsets needed by the page download, with
+`font-display: swap`; builds do not fetch or generate font declarations. Characters
+absent from the upstream subsets, including decomposed conjoining Hangul Jamo,
+use system fallbacks without changing the content. Font download failures also
+fall back to system fonts.
+
+`public/_headers` also defines `X-Content-Type-Options`, `Referrer-Policy`,
 `Permissions-Policy`, and `X-Frame-Options`.
 [Cloudflare headers documentation](https://developers.cloudflare.com/workers/static-assets/headers/)
 describes their deployment behavior.

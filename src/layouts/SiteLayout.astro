@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css'
+import '../styles/fonts/pretendard-hangul.css'
 import { MarkdownPath } from '../lib/discovery.ts'
 import { DefaultLanguage } from '../lib/languages.ts'
 import { DirectoryPath, GetLanguage } from '../lib/localization.ts'
@@ -35,6 +36,7 @@ const English = Alternates.find((Alternate) => Alternate.Code === DefaultLanguag
     {!Noindex && Alternates.map((Alternate) => <link rel="alternate" hreflang={Alternate.Code} href={new URL(Alternate.Path, Astro.site)} />)}
     {!Noindex && English && <link rel="alternate" hreflang="x-default" href={new URL(English.Path, Astro.site)} />}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource-variable/google-sans-flex@5.3.1/index.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono@5.3.0/400.min.css" />
     {Noindex && <meta name="robots" content="noindex" />}
   </head>
   <body>

@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { test } from 'node:test'
 import { CheckDist } from '../scripts/check-dist.ts'
-import { LinkFixtureDependencies, ResetFixtureContent } from './fixtures.ts'
+import { AssertFontStylesheets, LinkFixtureDependencies, ResetFixtureContent } from './fixtures.ts'
 
 const Root = resolve(import.meta.dirname, '..')
 const Languages = [
@@ -61,7 +61,11 @@ test('static localization publishes actual translations, English fallbacks and c
     const Build = () => execFileSync(process.execPath, [join(Root, 'node_modules/astro/bin/astro.mjs'), 'build', '--root', Fixture], {
       cwd: Fixture, env: { ...process.env, ASTRO_TELEMETRY_DISABLED: '1' }, stdio: 'pipe', timeout: 30_000,
     })
-    const Read = (Path: string) => readFile(join(Fixture, 'dist', Path), 'utf8')
+    const Read = async (Path: string) => {
+      const Output = await readFile(join(Fixture, 'dist', Path), 'utf8')
+      if (Path.endsWith('.html')) AssertFontStylesheets(Output)
+      return Output
+    }
     Build()
     assert.equal(await CheckDist(join(Fixture, 'dist'), join(Fixture, 'public/_headers')), 5)
     for (const Language of Languages) {
