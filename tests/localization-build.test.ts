@@ -1,10 +1,11 @@
 import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'
-import { cp, mkdtemp, mkdir, readFile, rm, symlink, writeFile, access } from 'node:fs/promises'
+import { cp, mkdtemp, mkdir, readFile, rm, writeFile, access } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { test } from 'node:test'
 import { CheckDist } from '../scripts/check-dist.ts'
+import { LinkFixtureDependencies } from './fixtures.ts'
 
 const Root = resolve(import.meta.dirname, '..')
 const Languages = [
@@ -51,7 +52,7 @@ test('static localization publishes actual translations, English fallbacks and c
     for (const Path of ['src', 'public', 'astro.config.ts', 'tsconfig.json', 'package.json']) {
       await cp(join(Root, Path), join(Fixture, Path), { recursive: true })
     }
-    await symlink(join(Root, 'node_modules'), join(Fixture, 'node_modules'), 'dir')
+    await LinkFixtureDependencies(Fixture)
     const Definitions = await readFile(join(Root, 'src/i18n/locales.ts'), 'utf8')
     await writeFile(join(Fixture, 'src/i18n/locales.types.ts'), Definitions)
     // Preserve the public type export used by localization.ts.

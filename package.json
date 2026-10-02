@@ -11,7 +11,7 @@
   "scripts": {
     "dev": "astro dev",
     "preview": "astro preview",
-    "lint": "oxlint --deny-warnings",
+    "lint": "astro sync && oxlint --deny-warnings",
     "tsgo": "astro sync && node node_modules/typescript-native/bin/tsc --noEmit -p tsconfig.json",
     "check:astro": "astro check",
     "check:cloudflare": "tsx scripts/check-cloudflare.ts",

@@ -229,7 +229,7 @@ pnpm run preview
 
 | Command | Checks or behavior |
 | --- | --- |
-| `pnpm run lint` | oxlint with custom style and type-aware TypeScript rules; warnings fail the command |
+| `pnpm run lint` | Astro type generation, then oxlint with custom style and type-aware TypeScript rules; warnings fail the command |
 | `pnpm run tsgo` | Astro type generation, then native TS 7 checking without emission |
 | `pnpm run check:astro` | Astro template and TypeScript diagnostics |
 | `pnpm run check:cloudflare` | Reject Worker code, bindings, provisioning, and environment overrides |

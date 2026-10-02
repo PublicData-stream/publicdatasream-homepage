@@ -1,13 +1,55 @@
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
-import { mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
+import { access, cp, mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
-import { dirname, join, resolve } from 'node:path'
+import { delimiter, dirname, join, resolve } from 'node:path'
 import { test } from 'node:test'
 import { fileURLToPath } from 'node:url'
+import { LinkFixtureDependencies } from './fixtures.ts'
 
 const Root = resolve(import.meta.dirname, '..')
 const OxlintCli = join(dirname(fileURLToPath(import.meta.resolve('oxlint/package.json'))), 'bin/oxlint')
+
+test('lint initializes clean Astro types, rejects unsafe assignments and forwards fix arguments', { timeout: 60_000 }, async () => {
+  const Fixture = await mkdtemp(join(tmpdir(), 'publicdata-clean-lint-'))
+  try {
+    for (const Path of ['src', 'public', 'scripts', 'tests', 'astro.config.ts', 'tsconfig.json', 'package.json', '.oxlintrc.json', 'oxlint-plugin.mjs']) {
+      await cp(join(Root, Path), join(Fixture, Path), { recursive: true })
+    }
+    await LinkFixtureDependencies(Fixture)
+    const Manifest = JSON.parse(await readFile(join(Fixture, 'package.json'), 'utf8')) as Record<'scripts', Record<'lint', string>>
+    // Run the actual package script with pinned binaries and fresh Astro types.
+    const Run = (Fix = false) => spawnSync('sh', ['-c', `${Manifest.scripts.lint}${Fix ? ' --fix' : ''}`], {
+      cwd: Fixture,
+      env: { ...process.env, PATH: `${join(Root, 'node_modules/.bin')}${delimiter}${process.env.PATH ?? ''}`, ASTRO_TELEMETRY_DISABLED: '1' },
+      encoding: 'utf8',
+      timeout: 20_000,
+    })
+    await assert.rejects(access(join(Fixture, '.astro')))
+    const Clean = Run()
+    assert.ifError(Clean.error)
+    assert.equal(Clean.status, 0, Clean.stdout + Clean.stderr)
+    await access(join(Fixture, '.astro/types.d.ts'))
+    await access(join(Fixture, '.astro/content.d.ts'))
+
+    const InvalidPath = join(Fixture, 'src/lint-regression.ts')
+    await writeFile(InvalidPath, 'export const Invalid: string = JSON.parse(\'{}\')\n')
+    const Invalid = Run()
+    assert.ifError(Invalid.error)
+    assert.equal(Invalid.status, 1, Invalid.stdout + Invalid.stderr)
+    assert.match(Invalid.stdout + Invalid.stderr, /no-unsafe-assignment/)
+
+    await writeFile(InvalidPath, 'export const Value = 1;\n')
+    await rm(join(Fixture, '.astro'), { recursive: true })
+    const Fixed = Run(true)
+    assert.ifError(Fixed.error)
+    assert.equal(Fixed.status, 0, Fixed.stdout + Fixed.stderr)
+    assert.equal(await readFile(InvalidPath, 'utf8'), 'export const Value = 1\n')
+    await access(join(Fixture, '.astro/types.d.ts'))
+  } finally {
+    await rm(Fixture, { recursive: true, force: true })
+  }
+})
 
 async function WithLintFixture(Check: (Run: (Path: string, Source: string, Fix?: boolean) => Promise<string>) => Promise<void>) {
   const Fixture = await mkdtemp(join(tmpdir(), 'publicdata-lint-'))

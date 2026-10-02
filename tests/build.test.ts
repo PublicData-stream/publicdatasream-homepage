@@ -1,11 +1,12 @@
 import assert from 'node:assert/strict'
 import { execFileSync, spawnSync } from 'node:child_process'
-import { cp, mkdtemp, mkdir, readFile, rm, symlink, writeFile } from 'node:fs/promises'
+import { cp, mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { test } from 'node:test'
 import { fileURLToPath } from 'node:url'
 import { CheckDist } from '../scripts/check-dist.ts'
+import { LinkFixtureDependencies } from './fixtures.ts'
 
 const Root = resolve(import.meta.dirname, '..')
 const TsxCli = fileURLToPath(import.meta.resolve('tsx/cli'))
@@ -74,7 +75,7 @@ test('static builds handle empty and populated catalogs, plugins, policies, and 
     for (const Path of ['src', 'public', 'astro.config.ts', 'tsconfig.json', 'package.json']) {
       await cp(join(Root, Path), join(Fixture, Path), { recursive: true })
     }
-    await symlink(join(Root, 'node_modules'), join(Fixture, 'node_modules'), 'dir')
+    await LinkFixtureDependencies(Fixture)
     // These copies are disposable; real entries never enter the production catalog.
     await mkdir(join(Fixture, 'src/content/servers'), { recursive: true })
     const Build = () => execFileSync(process.execPath, [join(Root, 'node_modules/astro/bin/astro.mjs'), 'build', '--root', Fixture], {
