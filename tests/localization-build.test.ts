@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { test } from 'node:test'
 import { CheckDist } from '../scripts/check-dist.ts'
-import { LinkFixtureDependencies } from './fixtures.ts'
+import { LinkFixtureDependencies, ResetFixtureContent } from './fixtures.ts'
 
 const Root = resolve(import.meta.dirname, '..')
 const Languages = [
@@ -53,6 +53,7 @@ test('static localization publishes actual translations, English fallbacks and c
       await cp(join(Root, Path), join(Fixture, Path), { recursive: true })
     }
     await LinkFixtureDependencies(Fixture)
+    await ResetFixtureContent(Fixture)
     const Definitions = await readFile(join(Root, 'src/i18n/locales.ts'), 'utf8')
     await writeFile(join(Fixture, 'src/i18n/locales.types.ts'), Definitions)
     // Preserve the public type export used by localization.ts.

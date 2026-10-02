@@ -1,12 +1,13 @@
 import assert from 'node:assert/strict'
 import { execFileSync, spawnSync } from 'node:child_process'
-import { cp, mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
+import { cp, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { test } from 'node:test'
 import { fileURLToPath } from 'node:url'
 import { CheckDist } from '../scripts/check-dist.ts'
-import { LinkFixtureDependencies } from './fixtures.ts'
+import { GetPublishedLanguages, DirectoryPath } from '../src/lib/localization.ts'
+import { LinkFixtureDependencies, ResetFixtureContent } from './fixtures.ts'
 
 const Root = resolve(import.meta.dirname, '..')
 const TsxCli = fileURLToPath(import.meta.resolve('tsx/cli'))
@@ -76,8 +77,10 @@ test('static builds handle empty and populated catalogs, plugins, policies, and 
       await cp(join(Root, Path), join(Fixture, Path), { recursive: true })
     }
     await LinkFixtureDependencies(Fixture)
-    // These copies are disposable; real entries never enter the production catalog.
-    await mkdir(join(Fixture, 'src/content/servers'), { recursive: true })
+    // Discard copied production entries before adding synthetic offline fixtures.
+    await ResetFixtureContent(Fixture)
+    const Directories = GetPublishedLanguages().map(({ Code }) => DirectoryPath(Code))
+    const EmptyPageCount = Directories.length + 1
     const Build = () => execFileSync(process.execPath, [join(Root, 'node_modules/astro/bin/astro.mjs'), 'build', '--root', Fixture], {
       cwd: Fixture,
       env: { ...process.env, ASTRO_TELEMETRY_DISABLED: '1' },
@@ -91,18 +94,19 @@ test('static builds handle empty and populated catalogs, plugins, policies, and 
     })
     Build()
     assert.match(await readFile(join(Fixture, 'dist/index.html'), 'utf8'), /No servers listed yet/)
-    for (const Path of ['index.html', '404.html']) {
+    for (const Path of [...Directories.map((Directory) => `${Directory.slice(1)}index.html`), '404.html']) {
       AssertFontStylesheet(await readFile(join(Fixture, 'dist', Path), 'utf8'))
     }
-    assert.equal(await CheckDist(join(Fixture, 'dist'), join(Fixture, 'public/_headers')), 2)
+    assert.equal(await CheckDist(join(Fixture, 'dist'), join(Fixture, 'public/_headers')), EmptyPageCount)
     const ValidOutput = CheckOutput()
     assert.ifError(ValidOutput.error)
     assert.equal(ValidOutput.status, 0, ValidOutput.stderr)
-    assert.match(ValidOutput.stdout, /^Static output verified: 2 HTML pages;/)
+    assert(ValidOutput.stdout.startsWith(`Static output verified: ${EmptyPageCount} HTML pages;`))
     const ReadOutput = (Path: string) => readFile(join(Fixture, 'dist', Path), 'utf8')
     assert.match(await ReadOutput('llms.txt'), /No servers listed yet/)
     assert.match(await ReadOutput('index.md'), /No servers listed yet/)
-    assert.deepEqual([...((await ReadOutput('sitemap.xml')).matchAll(/<loc>(.*?)<\/loc>/g))].map(([, Url]) => Url), ['https://publicdata.stream/'])
+    assert.deepEqual([...((await ReadOutput('sitemap.xml')).matchAll(/<loc>(.*?)<\/loc>/g))].map(([, Url]) => Url),
+      Directories.map((Directory) => `https://publicdata.stream${Directory}`).sort())
     assert.equal(await ReadOutput('robots.txt'), 'User-agent: *\nAllow: /\n\nSitemap: https://publicdata.stream/sitemap.xml\n')
     assert.match(await ReadOutput('index.html'), /rel="alternate" type="text\/markdown" href="\/index.md"/)
     assert(!/rel="alternate"|rel="describedby"/.test(await ReadOutput('404.html')))
@@ -139,7 +143,7 @@ test('static builds handle empty and populated catalogs, plugins, policies, and 
     assert(!Page.includes('ChatGPT plugin'))
     assert(!Page.includes('Terms of Service'))
     assert(!Page.includes('Privacy Policy'))
-    assert.equal(await CheckDist(join(Fixture, 'dist'), join(Fixture, 'public/_headers')), 3)
+    assert.equal(await CheckDist(join(Fixture, 'dist'), join(Fixture, 'public/_headers')), EmptyPageCount + 1)
     const ServerMarkdown = await ReadOutput('servers/fixture/index.md')
     assert.match(ServerMarkdown, /### Getting started/)
     assert.match(ServerMarkdown, /### Codex/)
@@ -190,7 +194,7 @@ Synthetic policy fixture; not legal text.
     assert.match(WithPlugin, /https:\/\/example.org\/plugin/)
     assert.match(WithPlugin, /href="\/servers\/fixture\/terms\/"/)
     assert.match(WithPlugin, /href="\/servers\/fixture\/privacy\/"/)
-    assert.equal(await CheckDist(join(Fixture, 'dist'), join(Fixture, 'public/_headers')), 6)
+    assert.equal(await CheckDist(join(Fixture, 'dist'), join(Fixture, 'public/_headers')), EmptyPageCount + 4)
     const PluginMarkdown = await ReadOutput('servers/fixture/index.md')
     assert.match(PluginMarkdown, /## ChatGPT plugin/)
     assert.match(PluginMarkdown, /https:\/\/example.org\/plugin/)

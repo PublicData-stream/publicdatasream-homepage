@@ -1,7 +1,15 @@
-import { mkdir, readdir, symlink } from 'node:fs/promises'
+import { mkdir, readdir, rm, symlink } from 'node:fs/promises'
 import { join, resolve } from 'node:path'
 
 const Root = resolve(import.meta.dirname, '..')
+
+export async function ResetFixtureContent(Fixture: string) {
+  for (const Collection of ['servers', 'policies']) {
+    const Directory = join(Fixture, 'src/content', Collection)
+    await rm(Directory, { recursive: true, force: true })
+    await mkdir(Directory, { recursive: true })
+  }
+}
 
 export async function LinkFixtureDependencies(Fixture: string) {
   const Dependencies = join(Fixture, 'node_modules')

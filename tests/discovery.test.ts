@@ -36,9 +36,10 @@ test('empty discovery documents accurately describe the directory and use the co
   assert.match(Index, /No servers listed yet/)
   assert(!Index.includes('## Servers'))
   assert(!Index.includes('## Optional'))
-  assert.deepEqual(Nodes(Index).filter((Node) => Node.type === 'link').map((Node) => Node.url), ['https://example.org/index.md'])
+  assert.deepEqual(Nodes(Index).filter((Node) => Node.type === 'link').map((Node) => Node.url),
+    ['https://example.org/index.md', 'https://example.org/ko/index.md'])
   assert.equal(RenderRobots(Site), 'User-agent: *\nAllow: /\n\nSitemap: https://example.org/sitemap.xml\n')
-  assert.equal((RenderSitemap(Catalog, Site).match(/<loc>/g) ?? []).length, 1)
+  assert.equal((RenderSitemap(Catalog, Site).match(/<loc>/g) ?? []).length, 2)
   assert.throws(() => CanonicalUrl('/', undefined), /HTTPS Astro site/)
   assert.throws(() => RenderRobots(new URL('http://example.org')), /HTTPS Astro site/)
 })
@@ -73,9 +74,9 @@ test('Unicode, punctuation, and multiline metadata remain text rather than injec
     description: 'First line\n## Fake section\n[unsafe](javascript:alert)',
   } }
   const IndexTree = Nodes(RenderLlms({ Servers: [Tricky], Policies: [] }, Site))
-  assert.equal(IndexTree.filter((Node) => Node.type === 'link').length, 2)
+  assert.equal(IndexTree.filter((Node) => Node.type === 'link').length, 3)
   assert(!IndexTree.some((Node) => Node.type === 'html'))
-  assert.equal(IndexTree.filter((Node) => Node.type === 'heading').length, 3)
+  assert.equal(IndexTree.filter((Node) => Node.type === 'heading').length, 6)
   const Heading = Nodes(RenderServerMarkdown(Tricky, Site)).find((Node) => Node.type === 'heading')
   assert(Heading?.type === 'heading')
   assert.equal(Heading.children.length, 1)
@@ -97,7 +98,7 @@ test('sitemap URLs are sorted, deduplicated, escaped, and limited to HTML pages'
   ] }
   const Sitemap = RenderSitemap(Catalog, Site)
   assert.deepEqual([...Sitemap.matchAll(/<loc>(.*?)<\/loc>/g)].map(([, Url]) => Url), [
-    'https://example.org/', 'https://example.org/servers/fixture/', 'https://example.org/servers/fixture/privacy/',
+    'https://example.org/', 'https://example.org/ko/', 'https://example.org/servers/fixture/', 'https://example.org/servers/fixture/privacy/',
   ])
   assert(!/404|index\.md|llms|robots|lastmod|priority|changefreq/.test(Sitemap))
   assert.match(RenderSitemap({ Servers: [{ ...Server, data: { ...Server.data, slug: 'fixture&other' } }], Policies: [] }, Site), /fixture&amp;other/)

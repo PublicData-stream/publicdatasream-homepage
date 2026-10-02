@@ -13,9 +13,14 @@ test('registered language codes normalize and unsupported identifiers fail', () 
   for (const Code of ['', 'xx', 'zzx', 'und', 'mul', 'zxx', 'en-US', 'zh-Hant', '../en', 'english']) {
     assert.equal(LanguageSchema.safeParse(Code).success, false, Code)
   }
-  assert.deepEqual(GetPublishedLanguages().map((Language) => Language.Code), ['en'])
+  assert.deepEqual(GetPublishedLanguages().map((Language) => Language.Code), ['en', 'ko'])
   assert.equal(GetLanguage('eng').Code, 'en')
-  assert.throws(() => GetLanguage('ko'), /not published/)
+  assert.equal(GetLanguage('kor').Code, 'ko')
+  assert.equal(GetLanguage('ko').Messages.Count(0), '서버 0개')
+  assert.equal(GetLanguage('ko').Messages.Count(1), '서버 1개')
+  assert.equal(GetLanguage('ko').Messages.Count(1200), '서버 1,200개')
+  assert.equal(GetLanguage('ko').Messages.ConfigurationExample('Codex'), 'Codex 구성 예시')
+  assert.throws(() => GetLanguage('ace'), /not published/)
   assert.equal(DirectoryPath(), '/')
   assert.equal(ServerPath('example', 'kor'), '/ko/servers/example/')
 })
@@ -28,7 +33,7 @@ const Languages = ['en', 'ko']
 
 test('translations require placement, published languages, uniqueness and English counterparts', () => {
   assert.doesNotThrow(() => ValidateCatalog([EnglishServer, KoreanServer], [EnglishPolicy, KoreanPolicy], Languages))
-  assert.throws(() => ValidateCatalog([EnglishServer, KoreanServer], [EnglishPolicy]), /unpublished/)
+  assert.throws(() => ValidateCatalog([EnglishServer, KoreanServer], [EnglishPolicy], ['en']), /unpublished/)
   assert.throws(() => ValidateCatalog([KoreanServer], [], Languages), /English counterpart/)
   assert.throws(() => ValidateCatalog([EnglishServer, { ...KoreanServer, id: 'example-ko' }], [EnglishPolicy], Languages), /directory mismatch/)
   assert.throws(() => ValidateCatalog([EnglishServer, KoreanServer, KoreanServer], [EnglishPolicy], Languages), /Duplicate server/)
