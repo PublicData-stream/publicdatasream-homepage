@@ -3,7 +3,7 @@ language: ko
 slug: openlegal4everyone-terms
 server: openlegal4everyonemcp
 kind: terms
-title: OpenLegal 4 Everyone 이용약관
+title: OpenLegal4Everyone 이용약관
 ---
 
 ## 제1조 (목적)
@@ -125,9 +125,9 @@ LLM/AI 클라이언트가 서비스의 결과를 요약하거나 해석한 내�
 
 ## 제14조 (연락처)
 
-- 서비스 문의: [연락용 이메일]
-- 공개 인스턴스에 대한 보안 취약점·버전 불일치 제보: [이메일]
-- 소프트웨어에 대한 보안 취약점에 대한 제보: [GitHub security advisory URL]
+- 서비스 문의: piquark6046+legal4everyone@proton.me
+- 공개 인스턴스에 대한 보안 취약점·버전 불일치 제보: piquark6046+legal4everyone@proton.me
+- 소프트웨어에 대한 보안 취약점에 대한 제보: https://github.com/PublicData-stream/openlegal4everyoneMCP/security/advisories
 
 ## 제15조 (준거법과 관할)
 

@@ -3,7 +3,7 @@ slug: openlegal4everyone-terms
 language: en
 server: openlegal4everyonemcp
 kind: terms
-title: OpenLegal 4 Everyone Terms of Service
+title: OpenLegal4Everyone Terms of Service
 ---
 
 ## Article 1 (Purpose)
@@ -125,9 +125,9 @@ The full change history is available in the [website repository's commit history
 
 ## Article 14 (Contact)
 
-- Service inquiries: [Contact email]
-- Security vulnerability and version mismatch reports for the public instance: [Email]
-- Security vulnerability reports for the Software: [GitHub security advisory URL]
+- Service inquiries: piquark6046+legal4everyone@proton.me
+- Security vulnerability and version mismatch reports for the public instance: piquark6046+legal4everyone@proton.me
+- Security vulnerability reports for the Software: https://github.com/PublicData-stream/openlegal4everyoneMCP/security/advisories
 
 ## Article 15 (Governing law and jurisdiction)
 

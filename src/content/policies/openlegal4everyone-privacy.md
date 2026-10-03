@@ -3,7 +3,7 @@ slug: openlegal4everyone-privacy
 language: en
 server: openlegal4everyonemcp
 kind: privacy
-title: OpenLegal 4 Everyone Privacy Policy
+title: OpenLegal4Everyone Privacy Policy
 ---
 
 ## Article 1 (Overview and scope)
@@ -99,9 +99,9 @@ The Service is not directed at children under the age of 14 and does not knowing
 
 Send questions, complaints and requests to exercise your rights regarding personal information to:
 
-- Privacy officer: [Name or title of the responsible person]
-- Email: [Contact email]
-- Security vulnerability reports: [GitHub security advisory URL or email]
+- Privacy officer: PiQuark6046 (Jae Woon So)
+- Email: piquark6046+legal4everyone@proton.me
+- Security vulnerability reports: piquark6046+legal4everyone@proton.me
 
 ## Article 12 (Remedies for infringement)
 

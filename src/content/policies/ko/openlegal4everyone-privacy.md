@@ -3,7 +3,7 @@ language: ko
 slug: openlegal4everyone-privacy
 server: openlegal4everyonemcp
 kind: privacy
-title: OpenLegal 4 Everyone 개인정보 처리방침
+title: OpenLegal4Everyone 개인정보 처리방침
 ---
 
 ## 제1조 (개요와 적용 범위)
@@ -99,9 +99,9 @@ OpenLegal 4 Everyone(이하 "서비스")은 계정, 로그인, 쿠키, 추적 �
 
 개인정보 처리에 관한 문의, 고충, 권리 행사 요청은 아래로 보내 주세요.
 
-- 개인정보 보호책임자: [성명 또는 담당 명칭]
-- 이메일: [연락용 이메일]
-- 보안 취약점 제보: [GitHub 보안 제보 주소 또는 이메일]
+- 개인정보 보호책임자: PiQuark6046 (Jae Woon So)
+- 이메일: piquark6046+legal4everyone@proton.me
+- 보안 취약점 제보: piquark6046+legal4everyone@proton.me
 
 ## 제12조 (권익침해 구제 방법)
 
@@ -122,6 +122,6 @@ OpenLegal 4 Everyone(이하 "서비스")은 계정, 로그인, 쿠키, 추적 �
 | --- | --- |
 | 2026-10-03 | 최초 제정 |
 
-이 처리방침은 한국어와 영어로 작성되며, 두 판의 내용이 다르면 한국어판이 우선합니다.
+이 처리방침은 한국어와 영어로 작성되며, 두 판의 내용이 다르면 한국어 버전이 우선합니다.
 
 이 처리방침은 2026-10-03부터 시행합니다.
