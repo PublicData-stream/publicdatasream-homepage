@@ -100,8 +100,8 @@ OpenLegal 4 Everyone(이하 "서비스")은 계정, 로그인, 쿠키, 추적 �
 개인정보 처리에 관한 문의, 고충, 권리 행사 요청은 아래로 보내 주세요.
 
 - 개인정보 보호책임자: PiQuark6046 (Jae Woon So)
-- 이메일: piquark6046+legal4everyone@proton.me
-- 보안 취약점 제보: piquark6046+legal4everyone@proton.me
+- 이메일: `piquark6046+legal4everyone@proton.me`
+- 보안 취약점 제보: `piquark6046+legal4everyone@proton.me`
 
 ## 제12조 (권익침해 구제 방법)
 

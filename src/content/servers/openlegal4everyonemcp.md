@@ -165,12 +165,23 @@ imports its bundled skills. Follow the
 
 ### Supplied texts and temporary retention
 
-The text-comparison implementation stores uploaded attachments for ten minutes
-from the initial upload; comparisons and generated attachments expire ten minutes
-after publication. Reads do not extend those deadlines. Delete results earlier
-with `text.diff.delete` and attachments with `text.attachment.delete` when finished.
-These tool-specific limits do not describe client history or every operator data
-practice. See the [Terms of Service](/servers/openlegal4everyonemcp/terms/) and
+The text-comparison implementation holds supplied text, patches, and results in
+application memory. Uploaded attachments expire ten minutes after the initial
+upload; comparisons and generated attachments expire ten minutes after publication.
+Reads do not extend those deadlines. Expiry prevents new reads, and periodic
+cleanup removes expired entries. An operation already using the text may retain
+it until the operation finishes.
+
+Delete comparison results earlier with `text.diff.delete` and attachments with
+`text.attachment.delete` when finished. Comparison and attachment handles have
+independent lifetimes: deleting a comparison does not delete its patch attachment,
+and deleting an attachment does not delete the comparison. Keep handles private;
+anyone holding one may be able to read or delete its contents.
+
+Memory storage, expiry, and deletion do not guarantee secure erasure of host
+memory, swap, or crash dumps, and do not remove text already returned to clients
+or retained in their history. See the
+[Terms of Service](/servers/openlegal4everyonemcp/terms/) and
 [Privacy Policy](/servers/openlegal4everyonemcp/privacy/) for the public instance's
 conditions and processing scope, including optional rate limiting and security
 records.

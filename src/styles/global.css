@@ -90,6 +90,7 @@ pre, code, kbd, samp { font-family: var(--font-monospace); }
 .prose table { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; }
 .prose th, .prose td { padding: .6rem; border: 1px solid var(--line); }
 .policy-links { display: flex; flex-wrap: wrap; gap: 1.5rem; border-top: 1px solid var(--line); padding-top: 1.5rem; margin-top: 3rem; font-size: .9rem; }
+.document-header .policy-links { border-top: 0; padding-top: 0; margin-top: 1.25rem; }
 .preserve-lines { white-space: pre-line; }
 @media (max-width: 640px) {
   .policy-document .prose th, .policy-document .prose td { min-width: 10rem; }

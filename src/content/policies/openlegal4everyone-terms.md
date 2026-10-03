@@ -125,8 +125,8 @@ The full change history is available in the [website repository's commit history
 
 ## Article 14 (Contact)
 
-- Service inquiries: piquark6046+legal4everyone@proton.me
-- Security vulnerability and version mismatch reports for the public instance: piquark6046+legal4everyone@proton.me
+- Service inquiries: `piquark6046+legal4everyone@proton.me`
+- Security vulnerability and version mismatch reports for the public instance: `piquark6046+legal4everyone@proton.me`
 - Security vulnerability reports for the Software: https://github.com/PublicData-stream/openlegal4everyoneMCP/security/advisories
 
 ## Article 15 (Governing law and jurisdiction)

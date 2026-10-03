@@ -29,6 +29,11 @@ const { Content } = await render(Server)
       <div class="badges">{Data.capabilities.map((Capability) => <span class="badge">{Capability.toUpperCase()}</span>)}</div>
       <h1>{Data.name}</h1>
       <p class="lede">{Data.description}</p>
+      {Links.length > 0 && (
+        <nav class="policy-links" aria-label={Messages.ServerPolicies(Data.name)}>
+          {Links.map(({ Policy, Label }) => <a href={PolicyPath(Policy)} hreflang={Policy.data.language}>{Label}{Policy.data.language !== Data.language && ` — ${Messages.EnglishFallback}`}</a>)}
+        </nav>
+      )}
     </header>
     <section class="prose" aria-labelledby="installation-title">
       <h2 id="installation-title">{Messages.Installation}</h2>

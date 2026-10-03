@@ -100,8 +100,8 @@ The Service is not directed at children under the age of 14 and does not knowing
 Send questions, complaints and requests to exercise your rights regarding personal information to:
 
 - Privacy officer: PiQuark6046 (Jae Woon So)
-- Email: piquark6046+legal4everyone@proton.me
-- Security vulnerability reports: piquark6046+legal4everyone@proton.me
+- Email: `piquark6046+legal4everyone@proton.me`
+- Security vulnerability reports: `piquark6046+legal4everyone@proton.me`
 
 ## Article 12 (Remedies for infringement)
 
