@@ -4,6 +4,8 @@ language: ko
 name: OpenLegal4Everyone MCP
 description: 한국 법률 자료의 검색·조회·인용 검증과 개정본 및 사용자 제공 텍스트 비교를 위한 MCP 서버입니다.
 capabilities: [mcp]
+terms: openlegal4everyone-terms
+privacy: openlegal4everyone-privacy
 codex:
   format: toml
   config: |
@@ -164,8 +166,9 @@ ChatGPT에서는 **설정 → 보안 및 로그인**에서 개발자 모드를 �
 않습니다. 작업을 마치면 `text.diff.delete`로 비교 결과를,
 `text.attachment.delete`로 첨부파일을 더 일찍 삭제할 수 있습니다.
 이 도구별 기한은 클라이언트 대화 기록이나 운영자의 모든 데이터 처리 방식을
-설명하지 않습니다. 운영자가 승인한 서비스 약관과 개인정보처리방침은 이 디렉토리
-항목에 포함되어 있지 않습니다.
+설명하지 않습니다. 공개 인스턴스의 이용 조건과 선택적 속도 제한·보안 기록을
+포함한 처리 범위는 [이용약관](/ko/servers/openlegal4everyonemcp/terms/)과
+[개인정보 처리방침](/ko/servers/openlegal4everyonemcp/privacy/)에서 확인하세요.
 
 ### 문제 해결
 

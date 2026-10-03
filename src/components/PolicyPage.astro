@@ -14,7 +14,7 @@ const Alternates = Policies.filter((Entry) => Entry.data.slug === Data.slug)
 const { Content } = await render(Policy)
 ---
 <SiteLayout title={Data.title} language={Data.language} alternates={Alternates}>
-  <article class="document">
+  <article class="document policy-document">
     <a class="back-link" href={ServerPath(Data.server, Data.language)}>← {Messages.ServerDocumentation}</a>
     <header class="document-header"><h1>{Data.title}</h1></header>
     <div class="prose"><Content /></div>

@@ -1,8 +1,10 @@
 # publicdata.stream homepage
 
 A static directory of publicdata.stream MCP and API servers, built with Astro.
-The catalog is intentionally empty. Real server entries and operator-approved
-Terms of Service and Privacy Policy text will be added later.
+The catalog includes English and Korean OpenLegal4Everyone MCP documentation and
+its Terms of Service and Privacy Policy. Operator and contact placeholders in the
+policy documents are reserved for the operator to complete before production
+publication; a successful build does not establish legal completeness.
 
 Markdown files become static documentation pages. The complete deployment
 artifact is `dist/`. There is no application server, browser JavaScript, runtime
@@ -116,12 +118,16 @@ Astro's supported unified Markdown processor runs the safety plugin. Rendering
 is deferred until static generation so validation errors abort the build instead
 of merely being logged by Astro's eager content renderer.
 
-## Add policy content later
+## Policy content
 
-No legal text or pending policy pages are included. Leave `terms` and `privacy`
-absent until operator-approved content exists.
+Policy content lives in the policy collection. Leave `terms` and `privacy` absent
+for servers without operator-approved policy content. OpenLegal4Everyone's policy
+documents use an effective date of 2026-10-03 and cover optional per-user rate
+limiting and security event records retained for no more than 30 days. Enabling
+those features requires the backend to satisfy the published processing and
+deletion conditions; this site does not configure them.
 
-Later, create `src/content/policies/<policy-slug>.md` with frontmatter like:
+Create `src/content/policies/<policy-slug>.md` with frontmatter like:
 
 ```yaml
 slug: example-terms
@@ -390,7 +396,8 @@ fall back to system fonts.
 describes their deployment behavior.
 
 Local verification and CI do not deploy, provision Cloudflare resources, change
-DNS, or alter account billing. The catalog and legal policy content remain deferred.
+DNS, or alter account billing. Operator/contact details and legal completeness
+require operator review before production publication.
 
 ## Contributing
 

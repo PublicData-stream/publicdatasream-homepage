@@ -4,6 +4,8 @@ language: en
 name: OpenLegal4Everyone MCP
 description: An MCP server for searching and reading Korean legal sources, checking citations, and comparing revisions and supplied texts.
 capabilities: [mcp]
+terms: openlegal4everyone-terms
+privacy: openlegal4everyone-privacy
 codex:
   format: toml
   config: |
@@ -168,8 +170,10 @@ from the initial upload; comparisons and generated attachments expire ten minute
 after publication. Reads do not extend those deadlines. Delete results earlier
 with `text.diff.delete` and attachments with `text.attachment.delete` when finished.
 These tool-specific limits do not describe client history or every operator data
-practice. Operator-approved Terms of Service and Privacy Policy are not included
-in this directory entry.
+practice. See the [Terms of Service](/servers/openlegal4everyonemcp/terms/) and
+[Privacy Policy](/servers/openlegal4everyonemcp/privacy/) for the public instance's
+conditions and processing scope, including optional rate limiting and security
+records.
 
 ### Troubleshooting
 
