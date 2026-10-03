@@ -2,7 +2,7 @@
 slug: openlegal4everyonemcp
 language: en
 name: OpenLegal4Everyone MCP
-description: An MCP server for searching and reading Korean legal sources, checking citations, and comparing revisions and supplied texts.
+description: An MCP server for searching and reading Govs' legal sources, checking citations, and comparing revisions and supplied texts.
 capabilities: [mcp]
 terms: openlegal4everyone-terms
 privacy: openlegal4everyone-privacy

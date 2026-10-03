@@ -2,7 +2,7 @@
 slug: openlegal4everyonemcp
 language: ko
 name: OpenLegal4Everyone MCP
-description: 한국 법률 자료의 검색·조회·인용 검증과 개정본 및 사용자 제공 텍스트 비교를 위한 MCP 서버입니다.
+description: 정부 법률 자료의 검색·조회·인용 검증과 개정본 및 사용자 제공 텍스트 비교를 위한 MCP 서버입니다.
 capabilities: [mcp]
 terms: openlegal4everyone-terms
 privacy: openlegal4everyone-privacy
