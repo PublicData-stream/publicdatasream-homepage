@@ -8,7 +8,7 @@ title: OpenLegal4Everyone Terms of Service
 
 ## Article 1 (Purpose)
 
-These Terms set out the conditions for using the OpenLegal 4 Everyone public instance (the "Service"), which [Operator name] (the "Operator") provides free of charge. By using the Service, you agree to these Terms.
+These Terms set out the conditions for using the OpenLegal 4 Everyone public instance (the "Service"), which PiQuark6046 (the "Operator") provides free of charge. By using the Service, you agree to these Terms.
 
 ## Article 2 (Definitions)
 

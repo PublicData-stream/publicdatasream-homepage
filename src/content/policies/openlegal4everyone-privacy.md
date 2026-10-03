@@ -8,7 +8,7 @@ title: OpenLegal4Everyone Privacy Policy
 
 ## Article 1 (Overview and scope)
 
-OpenLegal 4 Everyone (the "Service") is provided without accounts, sign-in, cookies or tracking tools, and processes only the information it needs to provide and protect the Service. [Operator name] (the "Operator") publishes this Privacy Policy under Article 30 of the Personal Information Protection Act of the Republic of Korea. The conditions for using the public instance are set out in the [Terms of Service](/servers/openlegal4everyonemcp/terms/).
+OpenLegal 4 Everyone (the "Service") is provided without accounts, sign-in, cookies or tracking tools, and processes only the information it needs to provide and protect the Service. PiQuark6046 (the "Operator") publishes this Privacy Policy under Article 30 of the Personal Information Protection Act of the Republic of Korea. The conditions for using the public instance are set out in the [Terms of Service](/servers/openlegal4everyonemcp/terms/).
 
 This Privacy Policy applies to:
 
