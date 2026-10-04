@@ -26,13 +26,17 @@ The Service does not ask users to supply names, email addresses, phone numbers, 
 
 The table describes the permitted processing scope, including per-user rate limiting and security records that may be enabled when needed. It does not mean that every item is collected on every request. A feature may be enabled within the published items, purposes and retention conditions; expanding those conditions follows Article 13. Publication alone does not replace any consent or other legal basis required for the processing.
 
+When automatic collection is enabled and the collection scheduler is available, eligible searches, statute name resolution and initial current-version reads can create database collection requests without a separate explicit request. Simple eligible searches may use the submitted search term; name resolution may use the resolved statute name. An optional `collection_term` supplies a separate literal term for upstream discovery without changing the local query. Complex queries, regex or filtered searches require that explicit term for collection; they are not automatically simplified and forwarded. Continuations, historical or retained-capture reads, ChatGPT `fetch`, source-page and resource reads, and internal legal analysis do not queue automatic collection. Available local results are returned while collection proceeds separately.
+
 | Category | Information processed | Purpose | Retention |
 | --- | --- | --- | --- |
 | Legal search and lookup | Tool parameters and continuation state (search terms, statute names, article numbers, reference dates, jurisdiction, time zone, etc.) | Returning search and lookup results and continuing a result page | Continuation state is held in memory and becomes unusable 10 minutes after creation, without extension. Expired state is removed on a subsequent search or lookup, or when the server process ends; expiry does not mean immediate memory erasure |
 | Text comparison | Text and patches submitted by the user, and the comparison results | Returning text comparison and patch results | Held in memory only. Uploads expire 10 minutes after the initial upload; results and generated attachments expire 10 minutes after publication, without extension. Periodic cleanup removes expired items. Delete tools allow earlier removal; active operations may hold the text until they finish |
-| Collection requests | Document identifiers, case numbers, collection search terms and target datasets; request identifier, hash, status and reason | Collecting public legal material from the Korea Law Information Center and checking request status | The request payload is cleared when processing completes, fails or is skipped; a deferred request keeps it for retry. Records expire 1 day after the request and are removed by periodic cleanup. Launching or running requests are excluded until they finish or are settled as failed |
+| Explicit and automatic collection requests | Document identifiers, case numbers, collection search terms or resolved statute names and target datasets; request identifier, target hashes, status, reason and creation/completion/expiry times | Collecting or refreshing public legal material from the Korea Law Information Center, checking request status and sharing equivalent work | Stored in the database. The request payload is cleared when processing completes, fails or is skipped; a deferred request keeps it for retry. Records ordinarily expire 24 hours after creation and are removed by periodic cleanup. If an explicit request first joins existing automatic work, the deadline may extend to 24 hours after that explicit request. Launching or running requests are excluded from cleanup until they finish or are settled as failed |
 | Per-user rate limiting, if enabled | Platform-provided user identifier (for example, OpenAI ChatGPT's `_meta["openai/subject"]`) | Applying per-user rate limits for AI platform users | Held in memory only, and deleted automatically once that identifier's rate limit has fully recovered |
 | Security access records, if enabled | IP address, request time, request path and User-Agent, only for security events such as blocking or rate limiting | Attack detection, abuse prevention and incident response | Only as long as needed for the event, for no more than 30 days from its occurrence, then deleted. Request bodies, search terms, submitted text and platform user identifiers are not included |
+
+Automatic collection rechecks one-hour freshness for eligible current national-statute reads. Successful discovery is reused for one hour per normalized target, and failed or partial attempts have a one-hour cooldown. These periods control repeated collection; they are not deletion deadlines. Explicit and automatic requests for the same target can share work and retained receipts. Collection records are not linked to a user account or platform user identifier, but submitted terms may themselves contain personal information and their hashes are not a guarantee of anonymity.
 
 Network connections also require temporary processing of IP addresses and protocol state to handle connections, enforce connection limits and resume encrypted sessions. This state is held in memory until the connection closes or the transport state expires, and is not used for advertising or tracking across services.
 
@@ -46,11 +50,13 @@ Do not put your own or anyone else's personal information, sensitive information
 
 Apart from the transmission needed to carry out collection requests below, the Service does not provide user input to third parties. Exceptions also apply where a law specifically requires disclosure or an investigative authority demands it through due legal process.
 
-For collection requests, the Service may send document identifiers, case numbers, collection search terms and target datasets to the Korea Law Information Center of the Ministry of Government Legislation (open.law.go.kr). These requests are sent by the Operator's server in the Operator's name; the user's IP address and text comparison material are not forwarded. Personal information included in a collection search term may nevertheless be transmitted, so do not include it. Searching the locally collected corpus is distinct from explicitly requesting upstream collection.
+For explicit and automatic collection requests, the Service may send document identifiers, case numbers, collection search terms or resolved statute names and target datasets to the Korea Law Information Center of the Ministry of Government Legislation (open.law.go.kr). Eligible searches and current-version reads can therefore trigger upstream transmission without a separate explicit collection request. These requests are sent by the Operator's collection workers in the Operator's name; the user's IP address, platform user identifier and text comparison material are not forwarded. Personal information included in a collection search term may nevertheless be transmitted, so do not include it. Continuous background polling also retrieves public source material even without user requests; idle/busy scheduling controls when collection proceeds, rather than creating a user-tracking history.
 
 ## Article 4 (Outsourcing of processing)
 
 The Operator outsources the following work to provide the Service.
+
+The hosting and outbound routing below apply to both explicit and automatic collection. Automatically generated targets and request records are included in Article 2; their processing in France follows Article 5.
 
 | Processor | Outsourced work | Processing location | Information processed |
 | --- | --- | --- | --- |
@@ -69,7 +75,7 @@ If you do not want your information transferred abroad, stop using the Service. 
 
 ## Article 6 (Destruction procedure and method)
 
-Information is removed under the expiry and cleanup conditions in Article 2. Expired search and lookup state is removed on subsequent operations or when the server process ends; text comparison items are removed by periodic cleanup. Database records are removed by periodic cleanup, with launching or running collection requests retained until settlement. Security records, if enabled, must be removed within 30 days of the event, including retained copies and backups.
+Information is removed under the expiry and cleanup conditions in Article 2. Expired search and lookup state is removed on subsequent operations or when the server process ends; text comparison items are removed by periodic cleanup. Explicit and automatic collection payloads are cleared on terminal settlement, with deferred payloads retained for retry. Database records are removed by periodic cleanup after their applicable deadline, including an extension when an explicit request joins automatic work; launching or running requests are retained until settlement. One-hour collection reuse or cooldown does not remove these records. Security records, if enabled, must be removed within 30 days of the event, including retained copies and backups.
 
 Users can remove text comparison material earlier using `text.diff.delete` and `text.attachment.delete`. Deletion removes access through its handle; an operation already using the material may hold it until it finishes. Releasing memory or deleting a database row or file does not by itself guarantee complete erasure of host memory, storage media or backups.
 
@@ -118,10 +124,13 @@ If you need advice on or resolution of a personal information infringement, you 
 
 When this Privacy Policy changes, the Operator will post the changes and the reasons on this page at least 7 days before they take effect, or at least 30 days before for changes that significantly affect users' rights. The full change history is available in the [website repository's commit history](https://github.com/PublicData-stream/publicdatasream-homepage/commits/main).
 
-| Effective date | Change |
+For the revision dated 2026-10-04 only, the Operator confirms that the Service is unused by external users and remains pre-launch. On that basis, this revision takes effect upon public posting without the advance notice described above. This one-time exception does not change the notice periods for future revisions or override applicable law.
+
+| Version date | Change |
 | --- | --- |
-| 2026-10-03 | Initial version |
+| 2026-10-03 | Initial version, effective on 2026-10-03 |
+| 2026-10-04 | Disclose automatic collection, upstream transmission, database records and retention introduced in Software `1.0.0-build.89edb145`; one-time pre-launch revision, effective upon public posting |
 
 This Privacy Policy is written in Korean and English. If the two versions differ, the Korean version prevails.
 
-This Privacy Policy takes effect on 2026-10-03.
+This revision of this Privacy Policy, dated 2026-10-04, takes effect upon public posting under the one-time pre-launch exception in Article 13.

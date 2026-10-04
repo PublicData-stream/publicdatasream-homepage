@@ -30,7 +30,9 @@ Upstream sources:
 
 - Shared open data of the Korea Law Information Center, Ministry of Government Legislation, Republic of Korea
 
-The Service is read-only and never creates or modifies legal data. Communication with the Ministry of Government Legislation is subject to the Operator's request caps and rate limits, so collection requests may be delayed, deferred or skipped.
+The Service does not create or amend official legal texts. It stores and refreshes copies of public source material. Collection can run continuously in the background even without User requests. With adaptive polling enabled, an idle upstream starts its next inventory cycle immediately; busy collection waits or rechecks as provider admission and queued work permit.
+
+When automatic collection is enabled, eligible searches, statute name resolution and initial current-version reads may also queue collection or refresh requests in the database without a separate explicit collection request. These operations can therefore have collection side effects. Available local results are returned while collection is pending; collection does not guarantee immediate results or complete, current coverage. Communication with the Ministry of Government Legislation remains subject to the Operator's request limits, provider admission and retry conditions, so collection may be delayed, deferred or skipped. Input processing and upstream transmission are described in the [Privacy Policy](/servers/openlegal4everyonemcp/privacy/).
 
 ## Article 4 (Not legal advice)
 
@@ -119,9 +121,12 @@ The Operator may change these Terms to the extent permitted by applicable law. T
 
 The full change history is available in the [website repository's commit history](https://github.com/PublicData-stream/publicdatasream-homepage/commits/main).
 
-| Effective date | Change |
+For the revision dated 2026-10-04 only, the Operator confirms that the Service is unused by external Users and remains pre-launch. On that basis, this revision takes effect upon public posting without the advance notice described above. This one-time exception does not change the notice periods for future revisions or override applicable law.
+
+| Version date | Change |
 | --- | --- |
-| 2026-10-03 | Initial version |
+| 2026-10-03 | Initial version, effective on 2026-10-03 |
+| 2026-10-04 | Describe background polling and automatic demand collection introduced in Software `1.0.0-build.89edb145`; one-time pre-launch revision, effective upon public posting |
 
 ## Article 14 (Contact)
 
@@ -137,4 +142,4 @@ These Terms are written in Korean and English. If the two versions differ, the K
 
 ## Addendum
 
-These Terms take effect on 2026-10-03.
+This revision of these Terms, dated 2026-10-04, takes effect upon public posting under the one-time pre-launch exception in Article 13.

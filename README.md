@@ -122,10 +122,15 @@ of merely being logged by Astro's eager content renderer.
 
 Policy content lives in the policy collection. Leave `terms` and `privacy` absent
 for servers without operator-approved policy content. OpenLegal4Everyone's policy
-documents use an effective date of 2026-10-03 and cover optional per-user rate
-limiting and security event records retained for no more than 30 days. Enabling
-those features requires the backend to satisfy the published processing and
-deletion conditions; this site does not configure them.
+documents retain their initial 2026-10-03 history. The revision dated 2026-10-04
+describes background polling and automatic demand collection introduced in
+`1.0.0-build.89edb145`, including upstream transmission and database request
+retention. Based on the operator's confirmation that the service is unused and
+pre-launch, this revision alone takes effect upon public posting without advance
+notice; future revisions retain the policies' notice periods. The policies also
+cover optional per-user rate limiting and security event records retained for no
+more than 30 days. Enabling these features requires the backend to satisfy the
+published processing and deletion conditions; this site does not configure them.
 
 Create `src/content/policies/<policy-slug>.md` with frontmatter like:
 
